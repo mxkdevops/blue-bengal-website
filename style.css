@@ -1,0 +1,135 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+
+header {
+
+    background: black;
+    overflow: hidden;
+}
+
+img {
+    width: 100%;
+   object-fit: cover;
+   opacity: 0.1;
+}
+
+.header-text {
+  background-color: rgba(0,0,0,0.5);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  padding: 50px;
+  text-align: center;
+}
+
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.button {
+  background-color: #fff;
+  border: 1px solid #000;
+  color: #000;
+  display: inline-block;
+  margin: 0 10px;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.button:hover {
+  background-color: #000;
+  color: #fff;
+}
+
+nav {
+  background-color: #333;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  margin: 0 10px;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+}
+
+main {
+  margin: 50px;
+}
+
+main h2 {
+    text-align: center;
+  font-size: 2rem;
+  margin-top: 50px;
+}
+
+main ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+main li {
+  border-bottom: 1px solid #ccc;
+  margin: 10px 0;
+  padding: 10px 0;
+}
+
+main p {
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+.opening-hours {
+  margin: 50px;
+  margin-top: 20px;
+}
+
+.opening-hours h2 {
+    text-align: center;
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.opening-hours table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.opening-hours table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.opening-hours table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
