@@ -1,0 +1,27 @@
+Redi servation setting for blue bengal 
+
+mEassage for large group 
+
+We are unable to take large number of guest booking online . 
+Please call our restaurant 020 8647 0286 in between 17:30 -21:30 .
+
+
+Override fully booked 
+
+We are unable to take booking online now . 
+Please call our restaurant 020 8647 0286 in between 17:30 -21:30 .
+
+Short code
+
+[redirestaurant apikeyid="1" apikey1="7434a4cd-291b-4ea0-89d6-84de183bf160" placeid="33485"]
+
+address
+
+140-142 High St, Carshalton SM5 3AE
+
+ 020 8647 0286z,z,
+
+Hellal.malik28@googlemail.com
+
+
+

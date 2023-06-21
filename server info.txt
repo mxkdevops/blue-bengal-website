@@ -1,0 +1,16 @@
+GENERAL INFORMATION
+Current User
+lovereel
+Primary Domain (DV Certificate)
+ lambethscientificservice.co.uk 
+Shared IP Address
+162.144.13.161
+Home Directory
+/home2/lovereel
+Last Login IP Address
+84.71.192.80
+DNS
+NS 1
+ns4209.hostgator.com
+NS 2
+ns4210.hostgator.com
