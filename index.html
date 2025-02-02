@@ -1,83 +1,400 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Bengal Carshalton</title>
-    <link rel="icon" href="logo.JPG" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css">
     <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <header>
-      <div class="hero-overlay">
-        <div class="header-text">
-          <h1>Blue Bengal Carshalton</h1>
-          <p>Dine with passion</p>
+    
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-4 text-center text-xl font-bold">Blue Bengal Carshalton - Dine with Passion</header>
+    
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between">
+                <div class="flex space-x-7">
+                    <div>
+                        <!-- Website Logo -->
+                        <a href="#" class="flex items-center py-4 px-2">
+                            <span class="font-semibold text-gray-500 text-lg">Blue Bengal</span>
+                        </a>
+                    </div>
+                    <!-- Primary Navbar items -->
+                    <div class="hidden md:flex items-center space-x-1">
+                        <a href="#about-us" class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-900 transition duration-300">About Us</a>
+                        <a href="#menu" class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-900 transition duration-300">Menu</a>
+                        <a href="#hours" class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-900 transition duration-300">Opening Hours</a>
+                        <a href="#contact" class="py-4 px-2 text-gray-500 font-semibold hover:text-blue-900 transition duration-300">Contact</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="hero-buttons">
-          <a href="blue%20bengal%20menu.pdf" class="button">View Menu</a>
-          <a href="https://app.resmio.com/blue-bengal/widget?fullscreen=true&" class="button">Make a Reservation</a>
-        </div>
-      </div>
-      <img src="blue%20bengal%20menu%20front%20pic.JPG" alt="Restaurant Hero Image">
-    </header>
+    </nav>
 
-    <div class="opening-hours">
-      <h2>Opening Hours</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Monday</td>
-            <td>05:30pm - 09:00pm</td>
-          </tr>
-          <tr>
-            <td>Tuesday</td>
-            <td>Close</td>
-          </tr>
-          <tr>
-            <td>Wednesday</td>
-            <td>05:30pm - 09:00pm</td>
-          </tr>
-          <tr>
-            <td>Thursday</td>
-            <td>05:30pm - 09:00pm</td>
-          </tr>
-          <tr>
-            <td>Friday</td>
-            <td>05:30pm - 09:30pm</td>
-          </tr>
-          <tr>
-            <td>Saturday</td>
-            <td>05:30pm - 09:30pm</td>
-          </tr>
-          <tr>
-            <td>Sunday</td>
-            <td>05:30pm - 09:00pm</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Hero Section with Animation -->
+<section class="relative text-center text-white hero-container">
+    <img src="hero-image.jpg" alt="Restaurant Hero Image" class="hero-img">
+    <div class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-black bg-opacity-50">
+        <h1 class="text-4xl font-bold mb-8 animate-fadeUp">Experience Authentic Indian Cuisine</h1>
+        <div class="mt-6">
+            <a href="blue bengal menu.pdf" class="bg-yellow-500 text-white px-6 py-3 rounded-lg mr-4 hover:bg-yellow-400 transition duration-300">View Menu</a>
+            <a href="https://app.resmio.com/blue-bengal/widget?fullscreen=true&" class="bg-red-500 text-white px-6 py-3 rounded-lg ml-4 hover:bg-red-400 transition duration-300">Make a Reservation</a>
+        </div>
+    </div>
+</section>
+
+
+<!-- Opening Hours -->
+    <section id="hours" class="p-8 bg-gray-200 text-center">
+        <h2 class="text-3xl font-bold text-blue-900">Opening Hours</h2>
+        <p class="mt-2 text-gray-700 text-lg">Come and enjoy our delicious meals at your convenience!</p>
+        <p class="mt-4 text-gray-600 italic">* Last orders are taken 30 minutes before closing.</p>
+        <div class="mt-4 overflow-x-auto">
+            <table class="w-full max-w-lg mx-auto bg-white shadow-lg rounded-lg border-collapse">
+                <thead>
+                    <tr class="bg-blue-900 text-white">
+                        <th class="p-3">Day</th>
+                        <th class="p-3">Hours</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <tr class="border-b"><td class="p-3">Monday</td><td class="p-3">05:30pm - 09:00pm</td></tr>
+                    <tr class="border-b bg-gray-100"><td class="p-3">Tuesday</td><td class="p-3">Closed</td></tr>
+                    <tr class="border-b"><td class="p-3">Wednesday</td><td class="p-3">05:30pm - 09:00pm</td></tr>
+                    <tr class="border-b bg-gray-100"><td class="p-3">Thursday</td><td class="p-3">05:30pm - 09:00pm</td></tr>
+                    <tr class="border-b"><td class="p-3">Friday</td><td class="p-3">05:30pm - 10:30pm</td></tr>
+                    <tr class="border-b bg-gray-100"><td class="p-3">Saturday</td><td class="p-3">05:30pm - 10:30pm</td></tr>
+                    <tr><td class="p-3">Sunday</td><td class="p-3">05:30pm - 09:30pm</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+
+    
+
+
+   <!-- About Us Section with Enhanced Background -->
+<section id="about-us" class="relative bg-cover bg-center text-white bg-fixed" style="background-image: url('about-us-background.jpg');">
+    <div class="absolute inset-0 bg-black bg-opacity-40"></div> <!-- Dark overlay -->
+    <div class="max-w-4xl mx-auto text-center relative z-10 p-12">
+        <h2 class="text-4xl font-bold text-yellow-500 mb-6">About Us</h2>
+        <p class="text-lg text-gray-200 leading-relaxed mb-6">
+            We are an Indian restaurant that has been serving authentic Indian cuisine for over 20 years. Our passion for Indian food and culture is reflected in every dish we create and every experience we provide to our customers.
+        </p>
+        <p class="text-lg text-gray-200 leading-relaxed mb-6">
+            We pride ourselves on using the freshest and highest quality ingredients in our dishes, which are prepared with care and attention to detail by our skilled chefs. Our menu features a wide variety of traditional and contemporary Indian dishes, from savory curries to delicious tandoori specialties.
+        </p>
+        <p class="text-lg text-gray-200 leading-relaxed mb-6">
+            At our restaurant, we strive to provide a warm and inviting atmosphere where our guests can relax, enjoy delicious food, and create memories with family and friends. Whether you're looking for a romantic dinner for two or a place to celebrate a special occasion, we welcome you to experience the taste and culture of India at our restaurant.
+        </p>
+        <!-- Call to Action Button (Optional) -->
+        <div class="mt-8">
+            <a href="#contact" class="bg-yellow-500 text-blue-900 font-semibold py-3 px-6 rounded-lg text-xl hover:bg-yellow-600 transition duration-300">Contact Us</a>
+        </div>
+    </div>
+</section>
+
+<!-- Digital Menu -->
+<section id="menu" class="p-8 bg-gray-200 text-center">
+    <h2 class="text-3xl font-bold text-blue-900 mb-8">Our Menu</h2>
+    <div class="max-w-6xl mx-auto">
+
+        <!-- Starters -->
+        <div class="menu-category">
+            <button class="menu-category-title bg-yellow-500 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+                Starters
+                <span class="arrow">▼</span>
+            </button>
+            <div class="menu-category-content mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-yellow-100 p-6 rounded-lg shadow-md border border-yellow-300">
+                    <h3 class="text-2xl font-semibold text-red-700 mb-4">Veg Starters</h3>
+                    <ul class="text-gray-700">
+                        <li>Pappadoms - £0.90</li>
+                        <li>Onion Bhaji - £3.60</li>
+                        <li>Samosa - £3.60</li>
+                        <li>Chilli Paneer - £4.10</li>
+                        <li>Spicy Garlic Mushroom - £4.10</li>
+                        <li>Tandoori Florets - £4.20</li>
+                    </ul>
+                </div>
+                <div class="bg-red-100 p-6 rounded-lg shadow-md border border-red-300">
+                    <h3 class="text-2xl font-semibold text-yellow-700 mb-4">Non-Veg Starters</h3>
+                    <ul class="text-gray-700">
+                        <li>Chicken Tandoori - £4.70</li>
+                        <li>Chicken Tikka - £4.70</li>
+                        <li>Chicken Chat - £4.70</li>
+                        <li>Lamb Chops (2 pcs) - £6.60</li>
+                        <li>Sheek Kebab - £4.70</li>
+                        <li>King Prawn Puree - £7.50</li>
+                        <li>Garlic King Prawn - £7.10</li>
+                        <li>Prawn Puree - £6.10</li>
+                        <li>Salmon Tikka - £6.30</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platters to Share -->
+        <div class="menu-category mt-6">
+            <button class="menu-category-title bg-orange-500 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+                Platters to Share
+                <span class="arrow">▼</span>
+            </button>
+            <div class="menu-category-content mt-4 p-6 bg-yellow-100 rounded-lg">
+                <ul class="text-gray-700">
+                    <li>Vegetarian Platter - £7.50</li>
+                    <li>Meat Platter - £8.60</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tandoori Specialities -->
+        <div class="menu-category mt-6">
+            <button class="menu-category-title bg-red-500 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+                Tandoori Specialities
+                <span class="arrow">▼</span>
+            </button>
+            <div class="menu-category-content mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-green-100 p-6 rounded-lg shadow-md border border-green-300">
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-4">Tandoori Dishes</h3>
+                    <ul class="text-gray-700">
+                        <li>Full Tandoori Chicken - £16.80</li>
+                        <li>Half Tandoori Chicken - £8.50</li>
+                        <li>Chicken Tikka - £8.50</li>
+                        <li>Chicken Annwaka - £9.80</li>
+                        <li>Sheek Kebab - £8.50</li>
+                        <li>Paneer Tikka - £8.70</li>
+                        <li>Chicken Shaslick - £10.95</li>
+                        <li>Tandoori King Prawn - £13.80</li>
+                        <li>Tandoori Mixed Grill - £15.95</li>
+                        <li>Vegetable Shaslick - £9.20</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chef Specials - MILD -->
+        <div class="menu-category mt-6">
+            <button class="menu-category-title bg-blue-300 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+                Chef Specials (Mild)
+                <span class="arrow">▼</span>
+            </button>
+            <div class="menu-category-content mt-4 p-6 bg-purple-100 rounded-lg">
+                <ul class="text-gray-700">
+                    <li>Mumbai Vegetable - £9.00</li>
+                    <li>Sharjani Chicken / Lamb - £10.20</li>
+                    <li>Chingri Parsee - £13.50</li>
+                    <li>Murgh Makhani - £10.20</li>
+                    <li>Chicken Podina - £10.20</li>
+                    <li>Sweet Chilli King Prawn - £13.50</li>
+                    <li>Special Bengal Korma - £10.20</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chef Specials - MEDIUM -->
+        <div class="menu-category mt-6">
+            <button class="menu-category-title bg-green-300 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+                Chef Specials (Medium)
+                <span class="arrow">▼</span>
+            </button>
+            <div class="menu-category-content mt-4 p-6 bg-purple-100 rounded-lg">
+                <ul class="text-gray-700">
+                    <li>Gosht Kudu - £11.20</li>
+                    <li>Jeera Chicken Dhania - £10.20</li>
+                    <li>Shatkora Gosht - £11.20</li>
+                    <li>Momtaz Chicken - £10.20</li>
+                    <li>King Prawn Maroosh - £13.50</li>
+                    <li>Murgh Masala - £10.20</li>
+                    <li>Tawa Meat - £11.20</li>
+                    <li>Lemon Pepper Chicken - £10.20</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Chef Specials - HOT -->
+        <div class="menu-category mt-6">
+            <button class="menu-category-title bg-red-500 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+                Chef Specials (Hot)
+                <span class="arrow">▼</span>
+            </button>
+            <div class="menu-category-content mt-4 p-6 bg-purple-100 rounded-lg">
+                <ul class="text-gray-700">
+                    <li>Zaal Tikka Massala - £10.20</li>
+                    <li>North Bengal Garlic Chilli Chicken/Lamb - £10.20</li>
+                    <li>Naga Chicken Methi - £10.20</li>
+                    <li>Chicken Zilzila - £10.20</li>
+                    <li>Chingri Rangoon - £13.50</li>
+                    <li>Gunpowder Tikka - £10.20</li>
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- Rice & Breads -->
+        <div class="menu-category mt-6">
+            <button class="menu-category-title bg-green-500 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+                Rice & Breads
+                <span class="arrow">▼</span>
+            </button>
+            <div class="menu-category-content mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-orange-100 p-6 rounded-lg shadow-md border border-orange-300">
+                    <h3 class="text-2xl font-semibold text-red-700 mb-4">Rice</h3>
+                    <ul class="text-gray-700">
+                        <li>Plain Steamed Rice - £3.00</li>
+                        <li>Pilau Rice - £3.30</li>
+                        <li>Mushroom Rice / Coconut Rice - £3.60</li>
+                        <li>Special Rice / Keema Rice - £3.80</li>
+                    </ul>
+                </div>
+                <div class="bg-yellow-100 p-6 rounded-lg shadow-md border border-yellow-300">
+                    <h3 class="text-2xl font-semibold text-red-700 mb-4">Nan Bread</h3>
+                    <ul class="text-gray-700">
+                        <li>Plain Nan - £3.00</li>
+                        <li>Keema Nan - £3.30</li>
+                        <li>Peshwari Nan / Garlic Nan - £3.20</li>
+                        <li>Cheese Nan / Onion Nan / Chilli Nan - £3.20</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Old Favourites -->
+     <div class="menu-category mt-6">
+        <button class="menu-category-title bg-purple-500 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+            Old Favourites
+            <span class="arrow">▼</span>
+        </button>
+        <div class="menu-category-content mt-4 p-6 bg-blue-100 rounded-lg">
+            <ul class="text-gray-700">
+                <li>Chicken - £7.80</li>
+                <li>Meat - £8.40</li>
+                <li>King Prawn - £10.50</li>
+                <li>Vegetable - £7.00</li>
+                <li>Paneer Tikka - £7.30</li>
+                <li>Chicken Tikka Massala - £8.95</li>
+                <li>Chicken Passanda - £9.90</li>
+                <li>Chicken Biriani - £10.50</li>
+            </ul>
+        </div>
     </div>
 
-    <main>
-      <h2>About Us</h2>
-      <p>We are an Indian restaurant that has been serving authentic Indian cuisine for over 20 years...</p>
+         <!-- Vegetable Sides -->
+         <div class="menu-category mt-6">
+            <button class="menu-category-title bg-green-500 text-white px-6 py-3 rounded-lg w-full text-left font-semibold text-xl flex justify-between items-center">
+                Vegetable Sides
+                <span class="arrow">▼</span>
+            </button>
+            <div class="menu-category-content mt-4 p-6 bg-orange-100 rounded-lg">
+                <ul class="text-gray-700">
+                    <li>Sag Bhaji / Sag Paneer / Sag Mushroom - £4.25</li>
+                    <li>Bombay Aloo / Sag Aloo - £4.25</li>
+                    <li>Mushroom Bhaji / Cauliflower Bhaji - £4.25</li>
+                    <li>Chana Massala - £4.25</li>
+                    <li>Brinjal Bhaji / Broccoli Bhaji - £4.25</li>
+                </ul>
+            </div>
+        </div>
 
-      <h2>Contact Us</h2>
-      <p>Address: 140-142 High Street, Carshalton</p>
-      <p>Phone: 020 8647 0286</p>
-      <p>Email: info@bluebengal-carshalton.co.uk</p>
-    </main>
+    </div>
 
-    <footer>
-      <p>&copy; 2025 Blue Bengal Carshalton. All Rights Reserved.</p>
-    </footer>
 
-    <script src="script.js"></script>
-  </body>
+ 
+
+    </div>
+</section>
+
+    
+  
+
+   <!-- Happy Customers Section -->
+<section class="p-8 bg-white text-center">
+    <h2 class="text-3xl font-bold text-blue-900">Our Happy Customers</h2>
+    <div class="mt-4 slider-container mx-auto w-4/5">
+        <!-- Slick Slider Items -->
+        <div><img src="customer1.jpg" class="h-96 w-full object-cover rounded-lg" alt="Customer 1"></div>
+        <div><img src="customer2.jpg" class="h-96 w-full object-cover rounded-lg" alt="Customer 2"></div>
+        <div><img src="customer3.jpg" class="h-96 w-full object-cover rounded-lg" alt="Customer 3"></div>
+        <div><img src="customer4.jpg" class="h-96 w-full object-cover rounded-lg" alt="Customer 4"></div>
+        <div><img src="customer5.jpg" class="h-96 w-full object-cover rounded-lg" alt="Customer 5"></div>
+        <div><img src="customer6.jpg" class="h-96 w-full object-cover rounded-lg" alt="Customer 6"></div>
+    </div>
+</section>
+
+ 
+
+
+
+<!-- Contact Us -->
+<section id="contact" class="p-8 bg-gray-100 text-center">
+    <h2 class="text-3xl font-bold text-blue-900">Get in Touch</h2>
+    <p class="mt-2 text-gray-700 text-lg">We’d love to hear from you! Reach out to us for reservations or inquiries.</p>
+    
+    <div class="mt-6">
+        <p class="text-gray-800 font-semibold text-lg">📍 140-142 High Street, Carshalton</p>
+        <p class="mt-1 text-gray-800 font-semibold text-lg">📞 <a href="tel:02086470286" class="text-blue-600 hover:text-blue-800">020 8647 0286</a></p>
+        <p class="mt-1 text-gray-800 font-semibold text-lg">✉️ <a href="mailto:info@bluebengal-carshalton.co.uk" class="text-blue-600 hover:text-blue-800">info@bluebengal-carshalton.co.uk</a></p>
+    </div>
+
+    <!-- Social Media Links -->
+    <div class="mt-6 flex justify-center space-x-4">
+        <a href="https://www.facebook.com/bluebengal" target="_blank" class="text-blue-600 hover:text-blue-800 text-3xl">
+            <i class="fab fa-facebook"></i>
+        </a>
+        
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-blue-900 text-white p-6 text-center mt-8">
+    <p>&copy; 2025 Blue Bengal Carshalton. All Rights Reserved.</p>
+    <p class="mt-2 text-sm">
+        Follow us on 
+        <a href="https://www.facebook.com/bluebengal" target="_blank" class="underline">Facebook</a>, 
+        
+    </p>
+</footer>
+
+<!-- FontAwesome for Social Media Icons -->
+<script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
+
+    
+    
+    <!-- Slick Slider Script -->
+    <script>
+        $(document).ready(function(){
+        $('.slider-container').slick({
+            dots: true,             // Add navigation dots
+            infinite: true,         // Infinite scrolling
+            speed: 500,             // Animation speed
+            slidesToShow: 1,        // Show one image at a time
+            slidesToScroll: 1,      // Scroll one image at a time
+            autoplay: true,         // Auto-scroll the images
+            autoplaySpeed: 2000,    // Speed of autoplay in milliseconds
+            adaptiveHeight: true    // Adjust slide height according to image size
+        });
+    });
+    </script>
+
+    <!-- Collapsible Menu Script -->
+    <script>
+        document.querySelectorAll('.menu-category-title').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                button.classList.toggle('active');
+                content.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
 </html>

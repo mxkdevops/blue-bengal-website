@@ -1,120 +1,120 @@
-/* Global Styles */
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
-}
-
-header {
+/* General Styles */
+.hero-container {
+  height: 100vh;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  text-align: center;
-  color: white;
+  overflow: hidden;
 }
 
-header .hero-overlay {
+.hero-container img {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
+  object-fit: cover;
+  animation: zoomIn 10s infinite alternate ease-in-out;
+  opacity: 1 !important; /* Ensure full visibility */
+  filter: none !important; /* Remove extra filters if any */
+  transition: filter 0.5s ease; /* Smooth transition for hover effect */
 }
 
-header .header-text {
-  z-index: 3;
+/* Glow effect on hover */
+.hero-container img:hover {
+  filter: none !important; /* Remove extra filters if any */
 }
 
-header h1 {
-  font-size: 3rem;
-  margin: 0;
+.hero-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  animation: fadeUp 2s ease-in-out;
 }
 
-header p {
-  font-size: 1.5rem;
-  font-weight: lighter;
+/* Keyframes for animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-header img {
-  width: 100%;
-  height: auto;
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.hero-buttons {
-  z-index: 3;
+@keyframes zoomIn {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
 }
 
-.hero-buttons .button {
-  background-color: #fcbf49;
-  padding: 1rem 2rem;
-  text-decoration: none;
-  color: white;
-  border-radius: 5px;
-  margin: 0.5rem;
-  font-size: 1.2rem;
+
+/* Slick slider adjustments */
+.slider-container {
+  width: 80%; /* Adjust width */
+  margin: 0 auto; /* Center the slider */
+}
+
+.slick-slide img {
+  object-fit: contain; /* Maintain aspect ratio */
+  width: 100%; /* Fill container */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.slick-prev, .slick-next {
+  z-index: 10; /* Ensure arrows appear on top */
+}
+
+/* Menu Section Styles */
+.menu-category {
+  margin-bottom: 1.5rem;
+}
+
+.menu-category-title {
   transition: background-color 0.3s ease;
 }
 
-.hero-buttons .button:hover {
-  background-color: #d49d37;
+.menu-category-title:hover {
+  background-color: #eab308; /* Yellow-500 hover */
 }
 
-.opening-hours {
-  background-color: #fff;
-  padding: 2rem;
-  margin: 2rem 0;
-  border-radius: 8px;
+.menu-category-content {
+  display: none; /* Hidden by default */
 }
 
-.opening-hours h2 {
-  text-align: center;
-  margin-bottom: 1rem;
+.menu-category-content.active {
+  display: grid; /* Show when active */
 }
 
-.opening-hours table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
+.arrow {
+  transition: transform 0.3s ease;
 }
 
-.opening-hours table th, .opening-hours table td {
-  padding: 15px;
-  border: 1px solid #ddd;
+.menu-category-title.active .arrow {
+  transform: rotate(180deg); /* Rotate arrow when active */
 }
 
-.opening-hours table th {
-  background-color: #fcbf49;
-  color: white;
-  font-weight: bold;
+/* Responsive Grid */
+@media (max-width: 768px) {
+  .menu-category-content {
+      grid-template-columns: 1fr; /* Single column on mobile */
+  }
 }
 
-.opening-hours table tr:nth-child(even) {
-  background-color: #f2f2f2;
+.responsive-text {
+  font-size: 3rem; /* Default for desktop */
 }
 
-.opening-hours table tr:hover {
-  background-color: #d9d9d9;
+@media (max-width: 768px) {
+  .responsive-text {
+      font-size: 2rem; /* Medium size for tablets */
+  }
 }
 
-main {
-  padding: 2rem;
-  background-color: #ffffff;
-  margin: 0 2rem;
-  border-radius: 8px;
-}
-
-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: #004b5c;
-  color: white;
-}
-
-footer p {
-  margin: 0;
-  font-size: 1rem;
+@media (max-width: 480px) {
+  .responsive-text {
+      font-size: 1.5rem; /* Smaller size for mobile */
+  }
 }
