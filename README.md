@@ -1,9 +1,9 @@
 ### blue-bengal-website new version 
--Blue bengal website
+- Blue bengal website
 
 ```bash
 ```
-
+1. Clone this repository:
 ```bash
  git clone https://github.com/mxkdevops/blue-bengal-website.git
 ```
