@@ -20,9 +20,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # Change to your AWS region
 
-      - name: Deploy to S3
+      - name: Sync files to S3
         run: |
           aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --delete
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "*.md" \
+           --exclude ".gitignore" \
+           --exclude ".gitmodules" \
+           --exclude "README.md"
 
       - name: Invalidate CloudFront Cache
         run: |
