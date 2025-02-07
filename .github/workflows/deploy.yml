@@ -1,4 +1,4 @@
-- name: Deploy to S3 and Invalidate CloudFront
+name: Deploy to S3 and Invalidate CloudFront
 
 on:
   push:
@@ -16,12 +16,13 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID  }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # Change to your AWS region
 
       - name: Sync files to S3
         run: |
+          echo "Starting S3 sync..."
           aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --delete \
             --exclude ".git/*" \
             --exclude ".github/*" \
@@ -29,7 +30,10 @@ jobs:
             --exclude ".gitignore" \
             --exclude ".gitmodules" \
             --exclude "README.md"
+          echo "S3 sync completed."
 
       - name: Invalidate CloudFront Cache
         run: |
+          echo "Invalidating CloudFront cache..."
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+          echo "CloudFront invalidation request sent."
