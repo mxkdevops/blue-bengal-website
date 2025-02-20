@@ -43,7 +43,7 @@ document.getElementById("bookingForm").addEventListener("submit", async function
     let time = document.getElementById("time").value;
     let guests = document.getElementById("guests").value;
 
-    let response = await fetch("http://13.43.107.188:5000/create-booking", {
+    let response = await fetch("https://api.bluebengal-carshalton.co.uk/create-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, phone, date, time, guests })
