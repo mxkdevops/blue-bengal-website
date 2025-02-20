@@ -1,0 +1,96 @@
+/* Dark Background with a Gradient */
+body {
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Glassmorphism Effect for the Form */
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.6);
+}
+
+/* Heading Styling */
+h2 {
+    margin-bottom: 20px;
+    color: #00e676; /* Greenish color */
+    font-weight: bold;
+}
+
+/* Form Inputs & Select Dropdown */
+.form-control, .form-select {
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* Fix for Dropdown Visibility */
+.form-select option {
+    background: #203a43; /* Dark blue-green background */
+    color: #ffffff; /* White text for visibility */
+}
+
+/* Fix for Dropdown on Hover */
+.form-select:focus {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* Placeholder Text */
+.form-control::placeholder, .form-select {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Change input text color */
+.form-control {
+    color: white;
+}
+
+/* Form Labels */
+.form-label {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* Button Styling */
+.btn {
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: background 0.3s ease-in-out, transform 0.2s;
+    background-color: #00e676; /* Green */
+    color: #212121;
+    border: none;
+}
+
+.btn:hover {
+    background: #00c853; /* Darker Green */
+    transform: scale(1.05);
+}
+
+/* Confirmation Message */
+.alert {
+    font-weight: bold;
+    text-align: center;
+    background: rgba(0, 255, 135, 0.2);
+    color: #00e676;
+    border: 1px solid #00e676;
+    padding: 15px;
+    border-radius: 10px;
+}

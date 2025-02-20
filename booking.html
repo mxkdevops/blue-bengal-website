@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Booking</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="booking.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h2 class="text-center">Book Your Table</h2>
+                <form id="bookingForm">
+                    
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="name" class="form-control" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="email" class="form-control" required>
+                        <small id="emailError" class="text-danger d-none">Invalid email format</small>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" pattern="[0-9]{11}" required>
+                    </div>
+
+                    <!-- Date Picker -->
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" id="date" class="form-control" required>
+                    </div>
+
+                    <!-- Time Slots -->
+                    <div class="mb-3">
+                        <label class="form-label">Time</label>
+                        <select id="time" class="form-select" required></select>
+                    </div>
+
+                    <!-- Guests Dropdown -->
+                    <div class="mb-3">
+                        <label class="form-label">Number of Guests</label>
+                        <select id="guests" class="form-select" required></select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-light w-100">Book Now</button>
+                </form>
+
+                <!-- Confirmation Message -->
+                <div id="confirmationMessage" class="alert alert-success mt-3 d-none"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JS -->
+<script src="script.js"></script>
+
+</body>
+</html>
