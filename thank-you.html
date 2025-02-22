@@ -3,75 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Confirmation - Blue Bengal Carshalton</title>
+    <title>Thank You for Your Booking</title>
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
-            background-color: #f8f9fa;
+            background: #0a0f29; /* Dark Blue Background */
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100vh;
+            animation: fadeIn 1s ease-in-out;
         }
-        .container-box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .thank-you-card {
             max-width: 500px;
+            background: linear-gradient(145deg, #1a2238, #28304f);
+            padding: 30px;
+            border-radius: 15px;
             text-align: center;
+            box-shadow: 0 0 15px rgba(0, 140, 255, 0.6);
+            animation: glow 2s infinite alternate;
+            color: white;
         }
-        .btn-primary {
-            background-color: #007bff;
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(0, 140, 255, 0.4); }
+            to { box-shadow: 0 0 20px rgba(0, 140, 255, 0.8); }
+        }
+
+        .thank-you-card h1 {
+            color: #008cff; /* Neon Blue */
+        }
+
+        .thank-you-card p {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .glow-btn {
+            background: #008cff;
             border: none;
+            padding: 10px 20px;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 140, 255, 0.6);
+            transition: all 0.3s ease-in-out;
         }
-        .btn-primary:hover {
-            background-color: #0056b3;
+
+        .glow-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 140, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .logo {
+            max-width: 100px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(0, 140, 255, 0.8));
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="container-box">
-            <h2 class="text-success">Thank You for Your Booking!</h2>
-            <p class="fw-bold">Thank you very much for booking with <span class="text-primary">Blue Bengal Carshalton.</span></p>
-            <hr>
-            <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
-            <p><strong>Name:</strong> <span id="name"></span></p>
-            <p><strong>Email:</strong> <span id="email"></span></p>
-            <p><strong>Phone:</strong> <span id="phone"></span></p>
-            <p><strong>Date:</strong> <span id="date"></span></p>
-            <p><strong>Time:</strong> <span id="time"></span></p>
-            <p><strong>Guests:</strong> <span id="guests"></span></p>
-            <hr>
-            <h5>📍 Contact Us:</h5>
-            <p><strong>Address:</strong> 140-142 High St, Carshalton SM5 3AE</p>
-            <p><strong>Hours:</strong> Open ⋅ Closes 9:30 PM</p>
-            <p><strong>Phone:</strong> <a href="tel:+442086470286" class="text-decoration-none">020 8647 0286</a></p>
-            <hr>
-            <a href="index.html" class="btn btn-primary">Make Another Booking</a>
-        </div>
+
+<div class="thank-you-card">
+    <!-- Optional Logo -->
+    <img src="logo.JPG" alt="Restaurant Logo" class="logo">
+
+    <h1>Thank You for Your Booking!</h1>
+    <p>Your reservation has been confirmed.</p>
+
+    <div id="bookingDetails">
+        <p><strong>Booking Code:</strong> <span id="bookingId"></span></p>
+        <p><strong>Date:</strong> <span id="bookingDate"></span></p>
+        <p><strong>Time:</strong> <span id="bookingTime"></span></p>
+        <p><strong>Guests:</strong> <span id="bookingGuests"></span></p>
+        <p><strong>Phone:</strong> <span id="bookingPhone"></span></p>
     </div>
 
-    <!-- Bootstrap JS (Optional) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <p>Please arrive on time. We will hold your table for <strong>15 minutes</strong>.</p>
+    <p>If you need to cancel, please contact us at:</p>
+    <p><strong>📍 Address:</strong> Blue Bengal, 140-142 High St, Carshalton SM5 3AE</p>
+    <p><strong>📍 Email:</strong>info@bluebengal-carshalton.co.uk</p>
+    <p><strong>📞 Phone:</strong> 020 8647 0286</p>
 
-    <script>
-        // Retrieve booking details from sessionStorage
+    <a href="index.html" class="btn glow-btn mt-3">🏠 Go to Home Page</a>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript to Load Booking Details -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
         let bookingDetails = JSON.parse(sessionStorage.getItem("bookingDetails"));
-
         if (bookingDetails) {
             document.getElementById("bookingId").textContent = bookingDetails.bookingId;
-            document.getElementById("name").textContent = bookingDetails.name;
-            document.getElementById("email").textContent = bookingDetails.email;
-            document.getElementById("phone").textContent = bookingDetails.phone;
-            document.getElementById("date").textContent = bookingDetails.date;
-            document.getElementById("time").textContent = bookingDetails.time;
-            document.getElementById("guests").textContent = bookingDetails.guests;
+            document.getElementById("bookingDate").textContent = bookingDetails.date;
+            document.getElementById("bookingTime").textContent = bookingDetails.time;
+            document.getElementById("bookingGuests").textContent = bookingDetails.guests;
+            document.getElementById("bookingPhone").textContent = bookingDetails.phone;
         } else {
-            document.querySelector(".container-box").innerHTML = "<h2>No Booking Found</h2><p>Please make a new reservation.</p><a href='index.html' class='btn btn-primary'>Back to Home</a>";
+            document.getElementById("bookingDetails").innerHTML = "<p>Error loading booking details.</p>";
         }
-    </script>
+    });
+</script>
+
 </body>
 </html>

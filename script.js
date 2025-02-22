@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Handle Booking Form Submission
 document.getElementById("bookingForm").addEventListener("submit", async function (event) {
-    event.preventDefault();
+    event.preventDefault(); // Prevent default form submission
 
     let name = document.getElementById("name").value.trim();
     let email = document.getElementById("email").value.trim();
@@ -43,29 +43,36 @@ document.getElementById("bookingForm").addEventListener("submit", async function
     let time = document.getElementById("time").value;
     let guests = document.getElementById("guests").value;
 
-    let response = await fetch("https://api.bluebengal-carshalton.co.uk/create-booking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, date, time, guests })
-    });
+    if (!name || !email || !phone || !date || !time || !guests) {
+        alert("Please fill in all fields.");
+        return;
+    }
 
-    let result = await response.json();
-    if (result.success) {
-        // Store booking details in sessionStorage
-        let bookingDetails = {
-            bookingId: result.bookingId,
-            name: name,
-            email: email,
-            phone: phone,
-            date: date,
-            time: time,
-            guests: guests
-        };
-        sessionStorage.setItem("bookingDetails", JSON.stringify(bookingDetails));
+    try {
+        let response = await fetch("https://api.bluebengal-carshalton.co.uk/create-booking", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, phone, date, time, guests, status: "Pending" })
+        });
 
-        // Redirect to the thank you page
-        window.location.href = "thank-you.html";
-    } else {
-        alert("Error: " + result.message);
+        let result = await response.json();
+        if (result.success) {
+            // Store booking details for the Thank You page
+            sessionStorage.setItem("bookingDetails", JSON.stringify({
+                bookingId: result.booking.bookingId,
+                date: date,
+                time: time,
+                guests: guests,
+                phone: phone
+            }));
+
+            // Redirect to Thank You page
+            window.location.href = "thank-you.html";
+        } else {
+            alert("Error: " + result.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong. Please try again.");
     }
 });
