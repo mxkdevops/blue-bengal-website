@@ -3,7 +3,7 @@ name: Deploy to S3 and Invalidate CloudFront
 on:
   push:
     branches:
-      - main  # Change if needed
+      - main  # Change if need but not sure what to change
 
 jobs:
   deploy:
