@@ -3,7 +3,7 @@ name: Deploy to S3 and Invalidate CloudFront
 on:
   push:
     branches:
-      - main  # Change this to your target branch if needed
+      - main
 
 jobs:
   deploy:
@@ -23,7 +23,7 @@ jobs:
       - name: Sync files to S3
         run: |
           echo "Starting S3 sync..."
-          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --delete --exclude ".git/*" --exclude ".github/*" --exclude "*.md" --exclude ".gitignore" --exclude ".gitmodules" --exclude "README.md"
+          bash -c "aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --delete --exclude '.git/*' --exclude '.github/*' --exclude '*.md' --exclude '.gitignore' --exclude '.gitmodules' --exclude 'README.md'"
           echo "S3 sync completed."
 
       - name: Invalidate CloudFront Cache
