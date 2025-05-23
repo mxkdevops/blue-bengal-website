@@ -1,6 +1,12 @@
 ### blue-bengal-website new version 
 - Blue bengal website
 
+| Command       | Description          |
+|---------------|----------------------|
+| `ls`          | List directory files |
+| `cd`          | Change directory     |
+
+
 ```bash
 ```
 1. Clone this repository:
