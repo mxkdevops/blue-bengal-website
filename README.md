@@ -7,8 +7,7 @@
 | `cd`          | Change directory     |
 
 
-```bash
-```
+
 1. Clone this repository:
 ```bash
  git clone https://github.com/mxkdevops/blue-bengal-website.git
