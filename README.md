@@ -1,4 +1,4 @@
-### blue-bengal-website new version 
+### Blue-bengal-website new version 
 - Blue bengal website
 
 | Command       | Description          |
@@ -12,6 +12,11 @@
 ```bash
  git clone https://github.com/mxkdevops/blue-bengal-website.git
 ```
+#### Checkboxes
+-[x] AWS s3 
+-[x] Cloudn Front 
+-[x] AWS Cloud 53
+-[x] Certificate Manager 
 
 ### From VS code open a new terminal and type 
 
