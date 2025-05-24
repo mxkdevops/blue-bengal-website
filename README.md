@@ -13,10 +13,10 @@
  git clone https://github.com/mxkdevops/blue-bengal-website.git
 ```
 #### Checkboxes
--[x] AWS s3 
--[x] Cloudn Front 
--[x] AWS Cloud 53
--[x] Certificate Manager 
+- [X] AWS s3 
+- [X] Cloudn Front 
+- [X] AWS Cloud 53
+- [X] Certificate Manager 
 
 ### From VS code open a new terminal and type 
 
