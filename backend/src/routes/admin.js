@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db/pool");
 const adminAuth = require("../middleware/adminAuth");
 const { checkAvailability } = require("../utils/checkAvailability");
+const { sendBookingConfirmationEmail } = require("../utils/sendConfirmationEmail");
 
 const router = express.Router();
 router.use(adminAuth);
@@ -76,15 +77,24 @@ router.patch("/bookings/:id/status", async (req, res, next) => {
             return res.status(400).json({ success: false, message: "Invalid status." });
         }
 
+        const existing = await pool.query("SELECT status FROM bookings WHERE id = $1", [req.params.id]);
+        if (existing.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "Booking not found." });
+        }
+        const wasConfirmed = existing.rows[0].status === "confirmed";
+
         const result = await pool.query(
             `UPDATE bookings SET status = $1, updated_at = now() WHERE id = $2
              RETURNING id, booking_code, booking_date, booking_time, guests, status`,
             [status, req.params.id]
         );
-        if (result.rows.length === 0) {
-            return res.status(404).json({ success: false, message: "Booking not found." });
-        }
         res.json({ success: true, booking: result.rows[0] });
+
+        if (status === "confirmed" && !wasConfirmed) {
+            sendBookingConfirmationEmail(req.params.id).catch((err) =>
+                console.error("Failed to send booking confirmation email:", err)
+            );
+        }
     } catch (err) {
         next(err);
     }

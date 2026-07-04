@@ -3,6 +3,7 @@ const pool = require("../db/pool");
 const { validateBooking } = require("../utils/validateBooking");
 const { generateBookingCode } = require("../utils/bookingCode");
 const { checkAvailability } = require("../utils/checkAvailability");
+const { sendBookingConfirmationEmail } = require("../utils/sendConfirmationEmail");
 
 const router = express.Router();
 
@@ -135,6 +136,12 @@ router.post("/create-booking", async (req, res, next) => {
                 confirmationMessage: settings.confirmation_message,
             },
         });
+
+        if (booking.status === "confirmed") {
+            sendBookingConfirmationEmail(booking.id).catch((err) =>
+                console.error("Failed to send booking confirmation email:", err)
+            );
+        }
     } catch (err) {
         await client.query("ROLLBACK");
         next(err);

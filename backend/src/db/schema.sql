@@ -117,4 +117,4 @@ ALTER TABLE email_log ADD COLUMN IF NOT EXISTS voucher_id INTEGER REFERENCES vou
 -- idempotent across both fresh installs and databases that already had the narrower check.
 ALTER TABLE email_log DROP CONSTRAINT IF EXISTS email_log_email_type_check;
 ALTER TABLE email_log DROP CONSTRAINT IF EXISTS email_log_type_check;
-ALTER TABLE email_log ADD CONSTRAINT email_log_type_check CHECK (email_type IN ('reminder', 'feedback', 'voucher'));
+ALTER TABLE email_log ADD CONSTRAINT email_log_type_check CHECK (email_type IN ('reminder', 'feedback', 'voucher', 'confirmation'));
