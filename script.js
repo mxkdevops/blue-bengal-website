@@ -119,11 +119,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    await populateTimeOptions(null);
-
     // Warn if the chosen date falls on a day we're closed, and refresh time
     // availability for the newly selected date either way.
-    dateInput.addEventListener("change", async () => {
+    async function handleDateChange() {
         if (!dateInput.value) return;
         const [y, m, d] = dateInput.value.split("-").map(Number);
         const weekday = new Date(y, m - 1, d).getDay();
@@ -137,7 +135,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (!isClosed) {
             await populateTimeOptions(dateInput.value);
         }
-    });
+    }
+
+    // Default to today so guests don't have to pick a date just to see times
+    dateInput.value = today;
+    await handleDateChange();
+
+    dateInput.addEventListener("change", handleDateChange);
 });
 
 // Handle Booking Form Submission
