@@ -108,11 +108,22 @@
 
             <!-- Bookings tab -->
             <section class="admin-tab" id="tab-bookings" hidden>
+                <div class="date-nav">
+                    <button class="icon-btn" id="datePrevBtn" aria-label="Previous day">‹</button>
+                    <div class="date-nav-label" id="dateNavLabel">Today</div>
+                    <button class="icon-btn" id="dateNextBtn" aria-label="Next day">›</button>
+                    <label class="emergency-toggle">
+                        <input type="checkbox" id="emergencyBlockToggle">
+                        <span>🚨 Block all online bookings for this day</span>
+                    </label>
+                </div>
+
                 <div class="filters-bar">
                     <div class="quick-filters" id="quickFilters">
                         <button class="chip active" data-quick="upcoming">Upcoming</button>
                         <button class="chip" data-quick="today">Today</button>
-                        <button class="chip" data-quick="pending">Pending Only</button>
+                        <button class="chip" data-quick="tomorrow">Tomorrow</button>
+                        <button class="chip" data-quick="week">This Week</button>
                         <button class="chip" data-quick="all">All</button>
                     </div>
                     <select id="statusFilter">
@@ -124,9 +135,15 @@
                     </select>
                     <input type="date" id="dateFilter">
                     <input type="search" id="searchFilter" placeholder="Search name, email or phone…">
+                    <div class="quick-filters" id="viewToggle">
+                        <button class="chip active" data-view="cards">▤ Cards</button>
+                        <button class="chip" data-view="list">☰ List</button>
+                    </div>
                 </div>
 
-                <div class="table-wrap">
+                <div class="booking-list-wrap" id="bookingsListWrap" hidden></div>
+
+                <div class="table-wrap" id="bookingsCardsWrap">
                     <table class="bookings-table">
                         <thead>
                             <tr>
@@ -304,6 +321,13 @@
                             <div class="settings-desc">Largest party size guests can book online before being asked to call.</div>
                         </div>
                         <input type="number" min="1" max="50" class="settings-number" id="maxGuestsInput">
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Total capacity per time slot</div>
+                            <div class="settings-desc">Max total guests across all bookings at any single time. Leave blank for unlimited.</div>
+                        </div>
+                        <input type="number" min="1" class="settings-number" id="maxCoversInput" placeholder="Unlimited" style="width:130px;">
                     </div>
                     <div class="settings-row">
                         <div>

@@ -80,7 +80,7 @@ router.post("/create-booking", async (req, res, next) => {
         const settingsResult = await client.query(
             `SELECT auto_accept_bookings, max_guests_per_booking, min_guests_per_booking,
                     opening_time, closing_time, min_advance_notice_minutes, slot_interval_minutes,
-                    confirmation_message, closed_weekdays
+                    confirmation_message, closed_weekdays, max_covers_per_slot
              FROM settings WHERE id = 1`
         );
         const settings = settingsResult.rows[0];
@@ -93,7 +93,7 @@ router.post("/create-booking", async (req, res, next) => {
             });
         }
 
-        const availabilityError = await checkAvailability(client, settings, data.date, data.time);
+        const availabilityError = await checkAvailability(client, settings, data.date, data.time, data.guests);
         if (availabilityError) {
             await client.query("ROLLBACK");
             return res.status(400).json({ success: false, message: availabilityError });
@@ -226,7 +226,7 @@ router.patch("/booking/:code", async (req, res, next) => {
 
         const settingsResult = await client.query(
             `SELECT max_guests_per_booking, min_guests_per_booking, opening_time, closing_time,
-                    min_advance_notice_minutes, slot_interval_minutes, closed_weekdays
+                    min_advance_notice_minutes, slot_interval_minutes, closed_weekdays, max_covers_per_slot
              FROM settings WHERE id = 1`
         );
         const settings = settingsResult.rows[0];
@@ -239,7 +239,7 @@ router.patch("/booking/:code", async (req, res, next) => {
             });
         }
 
-        const availabilityError = await checkAvailability(client, settings, date, time);
+        const availabilityError = await checkAvailability(client, settings, date, time, guests, booking.id);
         if (availabilityError) {
             await client.query("ROLLBACK");
             return res.status(400).json({ success: false, message: availabilityError });

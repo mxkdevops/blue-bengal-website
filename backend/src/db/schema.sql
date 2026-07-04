@@ -61,6 +61,9 @@ ALTER TABLE settings ADD COLUMN IF NOT EXISTS feedback_enabled BOOLEAN NOT NULL 
 ALTER TABLE settings ADD COLUMN IF NOT EXISTS feedback_hours_after INTEGER NOT NULL DEFAULT 3;
 ALTER TABLE settings ADD COLUMN IF NOT EXISTS feedback_link TEXT NOT NULL DEFAULT 'https://www.facebook.com/bluebengal';
 
+-- Total covers (guests) allowed across all bookings in a single time slot. NULL = unlimited.
+ALTER TABLE settings ADD COLUMN IF NOT EXISTS max_covers_per_slot INTEGER;
+
 INSERT INTO settings (id, auto_accept_bookings)
 VALUES (1, false)
 ON CONFLICT (id) DO NOTHING;

@@ -331,6 +331,109 @@ body.admin-body {
     font-size: 0.92rem;
 }
 
+/* Date navigator */
+.date-nav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.date-nav .icon-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    line-height: 1;
+    flex: none;
+}
+
+.date-nav-label {
+    font-family: "Playfair Display", serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--maroon-dark);
+    min-width: 180px;
+}
+
+.emergency-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.emergency-toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: #a3242f;
+    cursor: pointer;
+}
+
+.emergency-toggle:has(input:checked) {
+    color: #a3242f;
+}
+
+/* Compact booking list view (alternative to cards, fewer columns, one line each) */
+.booking-list-wrap {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.booking-list-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--cream-alt);
+    cursor: pointer;
+}
+
+.booking-list-row:last-child {
+    border-bottom: none;
+}
+
+.booking-list-row:hover {
+    background: var(--cream-alt);
+}
+
+.booking-list-row .blr-name {
+    font-weight: 700;
+    color: var(--maroon-dark);
+    flex: 1 1 140px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.booking-list-row .blr-code {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    flex: none;
+}
+
+.booking-list-row .blr-when {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    flex: none;
+    white-space: nowrap;
+}
+
 /* Filters bar */
 .filters-bar {
     display: flex;
@@ -845,6 +948,29 @@ table.bookings-table {
 
     .quick-filters {
         width: 100%;
+    }
+
+    .date-nav {
+        padding: 12px 14px;
+    }
+
+    .date-nav-label {
+        min-width: 0;
+        flex: 1;
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .emergency-toggle {
+        margin-left: 0;
+        width: 100%;
+        order: 4;
+        font-size: 0.82rem;
+    }
+
+    .booking-list-row {
+        flex-wrap: wrap;
+        gap: 6px 14px;
     }
 
     .settings-row {

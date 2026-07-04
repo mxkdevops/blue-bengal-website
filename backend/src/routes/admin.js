@@ -122,7 +122,7 @@ router.patch("/bookings/:id", async (req, res, next) => {
 
         const settingsResult = await client.query(
             `SELECT max_guests_per_booking, min_guests_per_booking, opening_time, closing_time,
-                    slot_interval_minutes, closed_weekdays
+                    slot_interval_minutes, closed_weekdays, max_covers_per_slot
              FROM settings WHERE id = 1`
         );
         const settings = settingsResult.rows[0];
@@ -134,7 +134,7 @@ router.patch("/bookings/:id", async (req, res, next) => {
             });
         }
 
-        const availabilityError = await checkAvailability(client, settings, date, time);
+        const availabilityError = await checkAvailability(client, settings, date, time, guests, req.params.id);
         if (availabilityError) {
             return res.status(400).json({ success: false, message: availabilityError });
         }
@@ -162,7 +162,7 @@ const VALID_WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
 
 const SETTINGS_COLUMNS = `auto_accept_bookings, max_guests_per_booking, min_guests_per_booking,
     opening_time, closing_time, min_advance_notice_minutes, slot_interval_minutes,
-    confirmation_message, closed_weekdays,
+    confirmation_message, closed_weekdays, max_covers_per_slot,
     reminder_enabled, reminder_hours_before, feedback_enabled, feedback_hours_after, feedback_link,
     updated_at`;
 
@@ -189,6 +189,7 @@ router.patch("/settings", async (req, res, next) => {
             slotIntervalMinutes,
             confirmationMessage,
             closedWeekdays,
+            maxCoversPerSlot,
             reminderEnabled,
             reminderHoursBefore,
             feedbackEnabled,
@@ -233,6 +234,12 @@ router.patch("/settings", async (req, res, next) => {
         if (Array.isArray(closedWeekdays) && closedWeekdays.every((d) => VALID_WEEKDAYS.includes(d))) {
             params.push(closedWeekdays);
             updates.push(`closed_weekdays = $${params.length}`);
+        }
+        if (maxCoversPerSlot === null) {
+            updates.push("max_covers_per_slot = NULL");
+        } else if (Number.isInteger(maxCoversPerSlot) && maxCoversPerSlot > 0) {
+            params.push(maxCoversPerSlot);
+            updates.push(`max_covers_per_slot = $${params.length}`);
         }
         if (typeof reminderEnabled === "boolean") {
             params.push(reminderEnabled);

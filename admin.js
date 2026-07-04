@@ -16,6 +16,7 @@ const state = {
     selectedCustomerIds: new Set(),
     closedWeekdays: [],
     activeQuick: "upcoming",
+    bookingsViewMode: localStorage.getItem("bb_admin_view_mode") || "cards",
 };
 
 const els = {
@@ -46,6 +47,13 @@ const els = {
     dateFilter: document.getElementById("dateFilter"),
     searchFilter: document.getElementById("searchFilter"),
     bookingsTableBody: document.getElementById("bookingsTableBody"),
+    bookingsCardsWrap: document.getElementById("bookingsCardsWrap"),
+    bookingsListWrap: document.getElementById("bookingsListWrap"),
+    viewToggle: document.getElementById("viewToggle"),
+    datePrevBtn: document.getElementById("datePrevBtn"),
+    dateNextBtn: document.getElementById("dateNextBtn"),
+    dateNavLabel: document.getElementById("dateNavLabel"),
+    emergencyBlockToggle: document.getElementById("emergencyBlockToggle"),
 
     autoAcceptToggle: document.getElementById("autoAcceptToggle"),
     openingTimeInput: document.getElementById("openingTimeInput"),
@@ -53,6 +61,7 @@ const els = {
     slotIntervalInput: document.getElementById("slotIntervalInput"),
     minGuestsInput: document.getElementById("minGuestsInput"),
     maxGuestsInput: document.getElementById("maxGuestsInput"),
+    maxCoversInput: document.getElementById("maxCoversInput"),
     minAdvanceNoticeInput: document.getElementById("minAdvanceNoticeInput"),
     confirmationMessageInput: document.getElementById("confirmationMessageInput"),
     saveSettingsBtn: document.getElementById("saveSettingsBtn"),
@@ -226,7 +235,7 @@ adminNavToggle.addEventListener("click", () => {
 async function loadEverything() {
     await Promise.all([loadBookings(), loadSettings(), loadBlockedSlots(), loadEmailLog(), loadVouchers()]);
     renderOverview();
-    renderBookingsTable();
+    renderBookings();
     renderCustomersTable();
     renderNotifications();
     renderNotifBadge();
@@ -382,6 +391,7 @@ async function loadSettings() {
     els.slotIntervalInput.value = String(s.slot_interval_minutes);
     els.minGuestsInput.value = s.min_guests_per_booking;
     els.maxGuestsInput.value = s.max_guests_per_booking;
+    els.maxCoversInput.value = s.max_covers_per_slot === null ? "" : s.max_covers_per_slot;
     els.minAdvanceNoticeInput.value = String(s.min_advance_notice_minutes);
     els.confirmationMessageInput.value = s.confirmation_message;
 
@@ -468,16 +478,29 @@ function renderOverview() {
 }
 
 // --- Bookings table ---
+function addDays(dateStr, days) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() + days);
+    return dt.toISOString().split("T")[0];
+}
+
+function focusDate() {
+    return els.dateFilter.value || todayStr();
+}
+
 function getFilteredBookings() {
     const status = els.statusFilter.value;
     const date = els.dateFilter.value;
     const search = els.searchFilter.value.trim().toLowerCase();
     const today = todayStr();
+    const weekEnd = state.activeQuick === "week" ? addDays(today, 6) : null;
 
     return state.bookings.filter((b) => {
         if (status && b.status !== status) return false;
         if (date && b.booking_date !== date) return false;
         if (state.activeQuick === "upcoming" && b.booking_date < today) return false;
+        if (state.activeQuick === "week" && (b.booking_date < today || b.booking_date > weekEnd)) return false;
         if (search) {
             const haystack = `${b.name} ${b.email} ${b.phone}`.toLowerCase();
             if (!haystack.includes(search)) return false;
@@ -485,6 +508,102 @@ function getFilteredBookings() {
         return true;
     });
 }
+
+// Dispatches to whichever view mode (cards or compact list) is active —
+// call this instead of renderBookingsTable() directly after any data change.
+function renderBookings() {
+    if (state.bookingsViewMode === "list") {
+        els.bookingsCardsWrap.hidden = true;
+        els.bookingsListWrap.hidden = false;
+        renderBookingsList();
+    } else {
+        els.bookingsCardsWrap.hidden = false;
+        els.bookingsListWrap.hidden = true;
+        renderBookingsTable();
+    }
+    updateDateNav();
+}
+
+function renderBookingsList() {
+    const rows = getFilteredBookings();
+    els.bookingsListWrap.innerHTML = rows.length
+        ? rows
+              .map(
+                  (b) => `
+            <div class="booking-list-row" data-id="${b.id}">
+                <span class="blr-name">${escapeHtml(b.name)}</span>
+                <span class="blr-code">${b.booking_code}</span>
+                <span class="blr-when">${formatDate(b.booking_date)} · ${formatTime(b.booking_time)}</span>
+                <span class="status-badge status-${b.status}">${b.status}</span>
+            </div>`
+              )
+              .join("")
+        : `<p class="panel-empty">No bookings match these filters.</p>`;
+}
+
+els.bookingsListWrap.addEventListener("click", (e) => {
+    const row = e.target.closest(".booking-list-row");
+    if (row) openBookingModal(row.dataset.id);
+});
+
+els.viewToggle.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    document.querySelectorAll("#viewToggle .chip").forEach((c) => c.classList.remove("active"));
+    chip.classList.add("active");
+    state.bookingsViewMode = chip.dataset.view;
+    localStorage.setItem("bb_admin_view_mode", state.bookingsViewMode);
+    renderBookings();
+});
+
+// --- Date navigator + emergency block ---
+function updateDateNav() {
+    const fd = focusDate();
+    const today = todayStr();
+    const tomorrow = addDays(today, 1);
+
+    els.dateNavLabel.textContent = fd === today ? "Today" : fd === tomorrow ? "Tomorrow" : formatDate(fd);
+    els.emergencyBlockToggle.checked = state.blockedSlots.some((s) => s.block_date === fd && s.start_time === null);
+}
+
+function goToDate(newDate) {
+    els.dateFilter.value = newDate;
+    state.activeQuick = null;
+    document.querySelectorAll("#quickFilters .chip").forEach((c) => c.classList.remove("active"));
+    renderBookings();
+}
+
+els.datePrevBtn.addEventListener("click", () => goToDate(addDays(focusDate(), -1)));
+els.dateNextBtn.addEventListener("click", () => goToDate(addDays(focusDate(), 1)));
+
+els.emergencyBlockToggle.addEventListener("change", async () => {
+    const fd = focusDate();
+    const checkbox = els.emergencyBlockToggle;
+    const wasChecked = checkbox.checked;
+    checkbox.disabled = true;
+
+    try {
+        if (wasChecked) {
+            await apiFetch("/api/admin/blocked-slots", {
+                method: "POST",
+                body: JSON.stringify({ date: fd, wholeDay: true, reason: "Emergency block" }),
+            });
+        } else {
+            const existing = state.blockedSlots.find((s) => s.block_date === fd && s.start_time === null);
+            if (existing) {
+                await apiFetch(`/api/admin/blocked-slots/${existing.id}`, { method: "DELETE" });
+            }
+        }
+        await loadBlockedSlots();
+        renderBlockedSlots();
+        updateDateNav();
+    } catch (err) {
+        checkbox.checked = !wasChecked;
+        alert("Could not update the block for this day: " + err.message);
+    } finally {
+        checkbox.disabled = false;
+    }
+});
 
 function renderBookingsTable() {
     const rows = getFilteredBookings();
@@ -542,7 +661,7 @@ async function updateBookingStatus(id, status) {
         });
         await loadBookings();
         renderOverview();
-        renderBookingsTable();
+        renderBookings();
         renderCustomersTable();
         renderNotifications();
         renderNotifBadge();
@@ -616,7 +735,7 @@ function editBookingModal(id) {
             });
             await loadBookings();
             renderOverview();
-            renderBookingsTable();
+            renderBookings();
             renderCustomersTable();
             renderNotifications();
             els.bookingModal.hidden = true;
@@ -643,21 +762,21 @@ els.quickFilters.addEventListener("click", (e) => {
     if (state.activeQuick === "today") {
         els.dateFilter.value = todayStr();
         els.statusFilter.value = "";
-    } else if (state.activeQuick === "pending") {
-        els.dateFilter.value = "";
-        els.statusFilter.value = "pending";
+    } else if (state.activeQuick === "tomorrow") {
+        els.dateFilter.value = addDays(todayStr(), 1);
+        els.statusFilter.value = "";
     } else {
         els.dateFilter.value = "";
         els.statusFilter.value = "";
     }
-    renderBookingsTable();
+    renderBookings();
 });
 
 [els.statusFilter, els.dateFilter, els.searchFilter].forEach((el) => {
     el.addEventListener("input", () => {
         state.activeQuick = null;
         document.querySelectorAll("#quickFilters .chip").forEach((c) => c.classList.remove("active"));
-        renderBookingsTable();
+        renderBookings();
     });
 });
 
@@ -683,6 +802,7 @@ els.saveSettingsBtn.addEventListener("click", async () => {
                 slotIntervalMinutes: Number(els.slotIntervalInput.value),
                 minGuestsPerBooking: Number(els.minGuestsInput.value),
                 maxGuestsPerBooking: Number(els.maxGuestsInput.value),
+                maxCoversPerSlot: els.maxCoversInput.value === "" ? null : Number(els.maxCoversInput.value),
                 minAdvanceNoticeMinutes: Number(els.minAdvanceNoticeInput.value),
                 confirmationMessage: els.confirmationMessageInput.value,
                 closedWeekdays: state.closedWeekdays,
@@ -751,6 +871,7 @@ els.addBlockedSlotBtn.addEventListener("click", async () => {
         els.blockReasonInput.value = "";
         await loadBlockedSlots();
         renderBlockedSlots();
+        updateDateNav();
     } catch (err) {
         alert("Could not block slot: " + err.message);
     }
@@ -780,6 +901,7 @@ els.blockedSlotsList.addEventListener("click", async (e) => {
         await apiFetch(`/api/admin/blocked-slots/${btn.dataset.removeBlock}`, { method: "DELETE" });
         await loadBlockedSlots();
         renderBlockedSlots();
+        updateDateNav();
     } catch (err) {
         alert("Could not remove blocked slot: " + err.message);
     }
@@ -1014,6 +1136,10 @@ function escapeHtml(str) {
 }
 
 // --- Init ---
+document.querySelectorAll("#viewToggle .chip").forEach((chip) => {
+    chip.classList.toggle("active", chip.dataset.view === state.bookingsViewMode);
+});
+
 if (state.adminKey) {
     showApp();
     loadEverything().catch(() => {});
