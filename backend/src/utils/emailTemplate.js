@@ -70,9 +70,12 @@ function detailsTable(rows) {
     </table>`;
 }
 
-function button(label, href) {
-    return `<div style="text-align:center; margin:26px 0 10px;">
-        <a href="${href}" style="background:${BRAND.gold}; color:${BRAND.maroonDark}; text-decoration:none; font-family: Arial, sans-serif; font-weight:bold; font-size:14px; padding:13px 30px; border-radius:999px; display:inline-block;">${label}</a>
+function button(label, href, variant = "primary") {
+    const style = variant === "secondary"
+        ? `background:transparent; color:${BRAND.maroon}; border:2px solid ${BRAND.gold};`
+        : `background:${BRAND.gold}; color:${BRAND.maroonDark}; border:2px solid ${BRAND.gold};`;
+    return `<div style="text-align:center; margin:10px 0;">
+        <a href="${href}" style="${style} text-decoration:none; font-family: Arial, sans-serif; font-weight:bold; font-size:14px; padding:12px 28px; border-radius:999px; display:inline-block;">${label}</a>
     </div>`;
 }
 

@@ -2,6 +2,7 @@ const pool = require("../db/pool");
 const { sendEmail } = require("./emailSender");
 const { formatDate, formatTime } = require("./formatters");
 const { emailLayout, detailsTable, button, frontendUrl } = require("./emailTemplate");
+const { buildGoogleCalendarUrl } = require("./calendarLink");
 
 // Sent once, whenever a booking becomes "confirmed" — either immediately via
 // auto-accept, or later when staff manually confirm a pending booking.
@@ -20,6 +21,12 @@ async function sendBookingConfirmationEmail(bookingId) {
     const confirmationMessage = settingsResult.rows[0].confirmation_message;
 
     const manageUrl = frontendUrl(`/manage-booking.html?code=${encodeURIComponent(b.booking_code)}`);
+    const calendarUrl = buildGoogleCalendarUrl({
+        date: b.booking_date,
+        time: b.booking_time.slice(0, 5),
+        guests: b.guests,
+        bookingCode: b.booking_code,
+    });
     const subject = `Your table at Blue Bengal is confirmed — ${formatDate(b.booking_date)}`;
 
     const body = `Hi ${b.name},\n\n${confirmationMessage}\n\n` +
@@ -27,6 +34,7 @@ async function sendBookingConfirmationEmail(bookingId) {
         `Date: ${formatDate(b.booking_date)}\n` +
         `Time: ${formatTime(b.booking_time.slice(0, 5))}\n` +
         `Guests: ${b.guests}\n\n` +
+        `Add to Google Calendar: ${calendarUrl}\n` +
         `Need to change or cancel? ${manageUrl}\n\n` +
         `We look forward to welcoming you!`;
 
@@ -41,6 +49,7 @@ async function sendBookingConfirmationEmail(bookingId) {
                 ["Time", formatTime(b.booking_time.slice(0, 5))],
                 ["Guests", b.guests],
             ])}
+            ${button("📅 Add to Google Calendar", calendarUrl, "secondary")}
             ${button("Manage Your Booking", manageUrl)}
             <p style="margin:20px 0 0; font-size:13px; color:#6b5a4e; text-align:center;">Need to change the date, time or party size, or cancel? Use the button above.</p>
         `,

@@ -2,6 +2,7 @@ const pool = require("../db/pool");
 const { sendEmail } = require("../utils/emailSender");
 const { formatDate, formatTime } = require("../utils/formatters");
 const { emailLayout, detailsTable, button, frontendUrl } = require("../utils/emailTemplate");
+const { buildGoogleCalendarUrl } = require("../utils/calendarLink");
 
 const CHECK_INTERVAL_MS = 5 * 60 * 1000; // check every 5 minutes
 
@@ -34,9 +35,16 @@ async function processReminders(settings) {
 
     for (const b of due.rows) {
         const manageUrl = frontendUrl(`/manage-booking.html?code=${encodeURIComponent(b.booking_code)}`);
+        const calendarUrl = buildGoogleCalendarUrl({
+            date: b.booking_date,
+            time: b.booking_time.slice(0, 5),
+            guests: b.guests,
+            bookingCode: b.booking_code,
+        });
         const subject = `Reminder: your table at Blue Bengal — ${formatDate(b.booking_date)}`;
         const body = `Hi ${b.name},\n\nJust a reminder of your booking at Blue Bengal Carshalton:\n` +
             `${formatDate(b.booking_date)} at ${formatTime(b.booking_time.slice(0, 5))}, ${b.guests} guests (${b.booking_code}).\n\n` +
+            `Add to Google Calendar: ${calendarUrl}\n` +
             `Need to change or cancel? ${manageUrl}\n\nWe look forward to seeing you!`;
         const html = emailLayout({
             heading: "See you soon! ⏰",
@@ -49,6 +57,7 @@ async function processReminders(settings) {
                     ["Time", formatTime(b.booking_time.slice(0, 5))],
                     ["Guests", b.guests],
                 ])}
+                ${button("📅 Add to Google Calendar", calendarUrl, "secondary")}
                 ${button("Manage Your Booking", manageUrl)}
             `,
         });
