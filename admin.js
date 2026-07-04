@@ -111,8 +111,15 @@ const els = {
     bookingModalContent: document.getElementById("bookingModalContent"),
 };
 
+// Never use toISOString() here — it converts to UTC, which silently shifts
+// the calendar date backward during BST (UTC+1). Always read back the local
+// date components instead.
+function toLocalDateStr(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 function todayStr() {
-    return new Date().toISOString().split("T")[0];
+    return toLocalDateStr(new Date());
 }
 
 function formatDate(dateStr) {
@@ -417,7 +424,7 @@ function renderOverview() {
     const today = todayStr();
     const weekAhead = new Date();
     weekAhead.setDate(weekAhead.getDate() + 7);
-    const weekAheadStr = weekAhead.toISOString().split("T")[0];
+    const weekAheadStr = toLocalDateStr(weekAhead);
 
     const pending = state.bookings.filter((b) => b.status === "pending");
     const confirmed = state.bookings.filter((b) => b.status === "confirmed");
@@ -482,7 +489,7 @@ function addDays(dateStr, days) {
     const [y, m, d] = dateStr.split("-").map(Number);
     const dt = new Date(y, m - 1, d);
     dt.setDate(dt.getDate() + days);
-    return dt.toISOString().split("T")[0];
+    return toLocalDateStr(dt);
 }
 
 function focusDate() {

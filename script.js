@@ -14,8 +14,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     let dateError = document.getElementById("dateError");
     let submitBtn = document.querySelector("#bookingForm button[type='submit']");
 
-    // Restrict past dates in date picker
-    let today = new Date().toISOString().split("T")[0];
+    // Restrict past dates in date picker. Avoid toISOString() here — it
+    // converts to UTC, which can shift the calendar date during BST.
+    let now = new Date();
+    let today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     dateInput.setAttribute("min", today);
 
     // Sensible fallback in case the settings request fails

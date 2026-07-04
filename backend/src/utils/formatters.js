@@ -12,4 +12,11 @@ function formatTime(timeStr) {
     return `${displayHour}:${String(m).padStart(2, "0")} ${ampm}`;
 }
 
-module.exports = { formatDate, formatTime };
+// Today's date as the restaurant (Europe/London) sees it. The server itself
+// runs in UTC, so a plain `new Date().toISOString()` can be a day off from
+// what a UK guest/admin considers "today" for part of the day.
+function todayInLondon() {
+    return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date());
+}
+
+module.exports = { formatDate, formatTime, todayInLondon };

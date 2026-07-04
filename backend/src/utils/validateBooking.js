@@ -1,3 +1,5 @@
+const { todayInLondon } = require("./formatters");
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[0-9]{10,15}$/;
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -23,8 +25,7 @@ function validateBooking(body) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         errors.push("A valid date (YYYY-MM-DD) is required.");
     } else {
-        const today = new Date().toISOString().split("T")[0];
-        if (date < today) errors.push("Date cannot be in the past.");
+        if (date < todayInLondon()) errors.push("Date cannot be in the past.");
     }
 
     const normalizedTime = TIME_RE.test(time) ? time : null;

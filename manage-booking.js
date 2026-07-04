@@ -36,6 +36,13 @@ function formatDate(dateStr) {
     });
 }
 
+// Avoid toISOString() for "today" — it converts to UTC, which can shift the
+// calendar date during BST. Read back the local date components instead.
+function todayStr() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
 async function loadBookingSettings() {
     if (bookingSettings) return bookingSettings;
     const res = await fetch(`${API_BASE_URL}/booking-settings`);
@@ -105,7 +112,7 @@ function showDetails(booking) {
             bookingCode: booking.bookingCode,
         });
         els.editDate.value = booking.date;
-        els.editDate.setAttribute("min", new Date().toISOString().split("T")[0]);
+        els.editDate.setAttribute("min", todayStr());
         loadBookingSettings().then((settings) => {
             populateEditOptions(settings, booking.time.slice(0, 5), booking.guests);
         });

@@ -3,6 +3,7 @@ const pool = require("../db/pool");
 const adminAuth = require("../middleware/adminAuth");
 const { sendEmail } = require("../utils/emailSender");
 const { emailLayout, button, frontendUrl } = require("../utils/emailTemplate");
+const { todayInLondon } = require("../utils/formatters");
 
 const router = express.Router();
 router.use(adminAuth);
@@ -137,7 +138,7 @@ router.post("/:id/redeem", async (req, res, next) => {
         if (!voucher.active) {
             return res.status(400).json({ success: false, message: "This voucher is inactive." });
         }
-        if (voucher.expires_at && voucher.expires_at < new Date().toISOString().split("T")[0]) {
+        if (voucher.expires_at && voucher.expires_at < todayInLondon()) {
             return res.status(400).json({ success: false, message: "This voucher has expired." });
         }
         if (voucher.max_redemptions !== null && voucher.times_redeemed >= voucher.max_redemptions) {
