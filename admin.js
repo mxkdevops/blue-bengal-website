@@ -524,6 +524,15 @@ function renderBookings() {
     updateDateNav();
 }
 
+function contextualEmptyMessage() {
+    if (state.activeQuick === "today") return "No bookings for Today.";
+    if (state.activeQuick === "tomorrow") return "No bookings for Tomorrow.";
+    if (state.activeQuick === "week") return "No bookings this week.";
+    if (state.activeQuick === "upcoming") return "No upcoming bookings.";
+    if (els.dateFilter.value) return `No bookings for ${formatDate(els.dateFilter.value)}.`;
+    return "No bookings match these filters.";
+}
+
 function renderBookingsList() {
     const rows = getFilteredBookings();
     els.bookingsListWrap.innerHTML = rows.length
@@ -538,7 +547,7 @@ function renderBookingsList() {
             </div>`
               )
               .join("")
-        : `<p class="panel-empty">No bookings match these filters.</p>`;
+        : `<p class="panel-empty">${contextualEmptyMessage()}</p>`;
 }
 
 els.bookingsListWrap.addEventListener("click", (e) => {
@@ -624,7 +633,7 @@ function renderBookingsTable() {
             </tr>`
               )
               .join("")
-        : `<tr><td colspan="8" class="panel-empty">No bookings match these filters.</td></tr>`;
+        : `<tr><td colspan="8" class="panel-empty">${contextualEmptyMessage()}</td></tr>`;
 }
 
 function actionButtons(b) {

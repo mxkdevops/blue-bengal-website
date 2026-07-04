@@ -46,7 +46,7 @@ router.get("/booking-settings", async (req, res, next) => {
     try {
         const result = await pool.query(
             `SELECT opening_time, closing_time, min_guests_per_booking, max_guests_per_booking,
-                    slot_interval_minutes, closed_weekdays
+                    slot_interval_minutes, closed_weekdays, min_advance_notice_minutes
              FROM settings WHERE id = 1`
         );
         const s = result.rows[0];
@@ -59,8 +59,35 @@ router.get("/booking-settings", async (req, res, next) => {
                 maxGuestsPerBooking: s.max_guests_per_booking,
                 slotIntervalMinutes: s.slot_interval_minutes,
                 closedWeekdays: s.closed_weekdays,
+                minAdvanceNoticeMinutes: s.min_advance_notice_minutes,
             },
         });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// GET /availability?date=YYYY-MM-DD - public info on which times are blocked for a given
+// date, so the guest booking form can grey out unavailable slots before they even try to
+// submit, instead of only finding out after pressing "Book Now".
+router.get("/availability", async (req, res, next) => {
+    try {
+        const date = (req.query.date || "").toString();
+        if (!DATE_RE.test(date)) {
+            return res.status(400).json({ success: false, message: "A valid date (YYYY-MM-DD) is required." });
+        }
+
+        const result = await pool.query(
+            "SELECT start_time, end_time FROM blocked_slots WHERE block_date = $1",
+            [date]
+        );
+
+        const wholeDayBlocked = result.rows.some((r) => r.start_time === null);
+        const blockedRanges = wholeDayBlocked
+            ? []
+            : result.rows.map((r) => ({ startTime: r.start_time.slice(0, 5), endTime: r.end_time.slice(0, 5) }));
+
+        res.json({ success: true, wholeDayBlocked, blockedRanges });
     } catch (err) {
         next(err);
     }
