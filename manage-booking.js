@@ -23,6 +23,7 @@ const els = {
     saveChangesBtn: document.getElementById("saveChangesBtn"),
     cancelBookingBtn: document.getElementById("cancelBookingBtn"),
     searchAgainBtn: document.getElementById("searchAgainBtn"),
+    addToCalendarLink: document.getElementById("addToCalendarLink"),
 };
 
 let currentEmail = "";
@@ -94,8 +95,15 @@ function showDetails(booking) {
 
     els.editForm.hidden = readOnly;
     els.cancelBookingBtn.hidden = readOnly;
+    els.addToCalendarLink.hidden = readOnly;
 
     if (!readOnly) {
+        els.addToCalendarLink.href = buildGoogleCalendarUrl({
+            date: booking.date,
+            time: booking.time.slice(0, 5),
+            guests: booking.guests,
+            bookingCode: booking.bookingCode,
+        });
         els.editDate.value = booking.date;
         els.editDate.setAttribute("min", new Date().toISOString().split("T")[0]);
         loadBookingSettings().then((settings) => {

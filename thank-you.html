@@ -31,12 +31,14 @@
         <p class="confirmation-note">✉️ info@bluebengal-carshalton.co.uk</p>
         <p class="confirmation-note">📞 020 8647 0286</p>
 
-        <a href="manage-booking.html" id="manageBookingLink" class="btn btn-gold" style="margin-top: 18px;">Manage Your Booking</a>
+        <a href="#" id="addToCalendarLink" target="_blank" rel="noopener" class="btn btn-gold" style="margin-top: 18px;">📅 Add to Google Calendar</a>
+        <a href="manage-booking.html" id="manageBookingLink" class="btn btn-gold" style="margin-top: 10px;">Manage Your Booking</a>
         <a href="index.html" class="btn" style="margin-top: 10px; background:transparent; border:2px solid var(--cream-alt); color:var(--text-muted);">🏠 Go to Home Page</a>
         <p class="confirmation-note" style="margin-top:16px; font-size:12px;"><a href="privacy-policy.html" style="color:var(--text-muted);">Privacy Policy</a></p>
     </div>
 </div>
 
+<script src="calendar-link.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let bookingDetails = JSON.parse(sessionStorage.getItem("bookingDetails"));
@@ -51,6 +53,12 @@
             }
             document.getElementById("manageBookingLink").href =
                 "manage-booking.html?code=" + encodeURIComponent(bookingDetails.bookingId);
+            document.getElementById("addToCalendarLink").href = buildGoogleCalendarUrl({
+                date: bookingDetails.date,
+                time: bookingDetails.time,
+                guests: bookingDetails.guests,
+                bookingCode: bookingDetails.bookingId,
+            });
         } else {
             document.getElementById("bookingDetails").innerHTML = "<p>Error loading booking details.</p>";
         }
