@@ -13,6 +13,8 @@ function validateBooking(body) {
     const date = (body.date || "").toString().trim();
     const time = (body.time || "").toString().trim();
     const guests = Number(body.guests);
+    const notes = (body.notes || "").toString().trim().slice(0, 500);
+    const marketingConsent = body.marketingConsent === true;
 
     if (!name) errors.push("Name is required.");
     if (!EMAIL_RE.test(email)) errors.push("A valid email is required.");
@@ -37,7 +39,7 @@ function validateBooking(body) {
     return {
         valid: errors.length === 0,
         errors,
-        data: { name, email, phone, date, time: normalizedTime, guests },
+        data: { name, email, phone, date, time: normalizedTime, guests, notes, marketingConsent },
     };
 }
 

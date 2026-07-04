@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS customers (
     UNIQUE (email)
 );
 
+-- Explicit opt-in for promotional/voucher emails (UK GDPR/PECR marketing consent).
+-- Defaults to false; only set true when the guest actively ticks the box at booking time.
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS marketing_consent BOOLEAN NOT NULL DEFAULT false;
+
 CREATE TABLE IF NOT EXISTS bookings (
     id SERIAL PRIMARY KEY,
     booking_code VARCHAR(12) NOT NULL UNIQUE,

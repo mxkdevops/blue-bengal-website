@@ -32,7 +32,7 @@ router.get("/bookings", async (req, res, next) => {
         const result = await pool.query(
             `SELECT b.id, b.booking_code, b.booking_date, b.booking_time, b.guests, b.status,
                     b.notes, b.created_at,
-                    c.id AS customer_id, c.name, c.email, c.phone,
+                    c.id AS customer_id, c.name, c.email, c.phone, c.marketing_consent,
                     (SELECT COUNT(*) FROM bookings b2 WHERE b2.customer_id = c.id)::int AS customer_booking_count
              FROM bookings b
              JOIN customers c ON c.id = b.customer_id
@@ -53,7 +53,7 @@ router.get("/bookings/:id", async (req, res, next) => {
         const result = await pool.query(
             `SELECT b.id, b.booking_code, b.booking_date, b.booking_time, b.guests, b.status,
                     b.notes, b.created_at,
-                    c.id AS customer_id, c.name, c.email, c.phone,
+                    c.id AS customer_id, c.name, c.email, c.phone, c.marketing_consent,
                     (SELECT COUNT(*) FROM bookings b2 WHERE b2.customer_id = c.id)::int AS customer_booking_count
              FROM bookings b
              JOIN customers c ON c.id = b.customer_id

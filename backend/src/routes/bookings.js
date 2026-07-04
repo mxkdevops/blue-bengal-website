@@ -114,11 +114,17 @@ router.post("/create-booking", async (req, res, next) => {
         }
 
         const customerResult = await client.query(
-            `INSERT INTO customers (name, email, phone)
-             VALUES ($1, $2, $3)
-             ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, phone = EXCLUDED.phone, updated_at = now()
+            `INSERT INTO customers (name, email, phone, marketing_consent)
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT (email) DO UPDATE SET
+                name = EXCLUDED.name,
+                phone = EXCLUDED.phone,
+                -- Ticking the box grants consent; leaving it unticked on a later booking
+                -- never silently withdraws consent already on file (only /unsubscribe does).
+                marketing_consent = customers.marketing_consent OR EXCLUDED.marketing_consent,
+                updated_at = now()
              RETURNING id`,
-            [data.name, data.email, data.phone]
+            [data.name, data.email, data.phone, data.marketingConsent]
         );
         const customerId = customerResult.rows[0].id;
 
@@ -129,10 +135,10 @@ router.post("/create-booking", async (req, res, next) => {
         for (let attempt = 0; attempt < 5; attempt++) {
             try {
                 bookingResult = await client.query(
-                    `INSERT INTO bookings (booking_code, customer_id, booking_date, booking_time, guests, status)
-                     VALUES ($1, $2, $3, $4, $5, $6)
+                    `INSERT INTO bookings (booking_code, customer_id, booking_date, booking_time, guests, status, notes)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7)
                      RETURNING id, booking_code, booking_date, booking_time, guests, status`,
-                    [bookingCode, customerId, data.date, data.time, data.guests, status]
+                    [bookingCode, customerId, data.date, data.time, data.guests, status, data.notes || null]
                 );
                 break;
             } catch (err) {
@@ -358,6 +364,26 @@ router.post("/booking/:code/cancel", async (req, res, next) => {
                 )
             )
             .catch((err) => console.error("Failed to send booking-cancelled email:", err));
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST /unsubscribe - opts an email out of promotional/voucher emails.
+// Deliberately unauthenticated: it only ever reduces contact, so there's no
+// abuse risk in letting anyone trigger it for a given address (standard
+// pattern for unsubscribe links, and required by PECR for marketing email).
+router.post("/unsubscribe", async (req, res, next) => {
+    try {
+        const email = (req.body.email || "").toString().trim();
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email is required." });
+        }
+        await pool.query(
+            "UPDATE customers SET marketing_consent = false, updated_at = now() WHERE lower(email) = lower($1)",
+            [email]
+        );
+        res.json({ success: true });
     } catch (err) {
         next(err);
     }

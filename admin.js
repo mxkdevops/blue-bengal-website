@@ -284,6 +284,7 @@ function deriveCustomers() {
                 name: b.name,
                 email: b.email,
                 phone: b.phone,
+                marketingConsent: b.marketing_consent,
                 count: b.customer_booking_count,
                 bookings: [],
             });
@@ -321,10 +322,11 @@ function renderCustomersTable() {
                 <td data-label="Bookings">${c.count}</td>
                 <td data-label="Last Visit">${c.lastVisit ? formatDate(c.lastVisit.booking_date) : "—"}</td>
                 <td data-label="Next Upcoming">${c.nextUpcoming ? formatDate(c.nextUpcoming.booking_date) : "—"}</td>
+                <td data-label="Marketing"><span class="visit-badge ${c.marketingConsent ? "repeat" : ""}">${c.marketingConsent ? "Opted in" : "Opted out"}</span></td>
             </tr>`
               )
               .join("")
-        : `<tr><td colspan="6" class="panel-empty">No customers match this search.</td></tr>`;
+        : `<tr><td colspan="7" class="panel-empty">No customers match this search.</td></tr>`;
 }
 
 els.customerSearch.addEventListener("input", renderCustomersTable);
@@ -562,7 +564,9 @@ function openBookingModal(id) {
         <div class="modal-row"><span>Customer Bookings</span><strong>${b.customer_booking_count}${b.customer_booking_count > 1 ? " (repeat customer)" : " (new customer)"}</strong></div>
         <div class="modal-row"><span>Email</span><strong>${escapeHtml(b.email)}</strong></div>
         <div class="modal-row"><span>Phone</span><strong>${escapeHtml(b.phone)}</strong></div>
+        <div class="modal-row"><span>Marketing Emails</span><strong>${b.marketing_consent ? "Opted in" : "Not opted in"}</strong></div>
         <div class="modal-row"><span>Booked On</span><strong>${new Date(b.created_at).toLocaleString("en-GB")}</strong></div>
+        ${b.notes ? `<div class="modal-row" style="display:block;"><span style="display:block; margin-bottom:6px;">Notes / Special Requests</span><strong style="font-weight:400;">${escapeHtml(b.notes)}</strong></div>` : ""}
         <div class="modal-close">
             <button class="icon-btn" id="editBookingBtn">Edit Booking</button>
             <button id="closeModalBtn">Close</button>
@@ -891,7 +895,9 @@ function renderVoucherSendOptions() {
 }
 
 function renderVoucherRecipients() {
-    const customers = deriveCustomers().sort((a, b) => b.count - a.count);
+    // Only customers who've actually opted in to marketing emails can be picked —
+    // the backend enforces this too, but there's no point listing people we can't email.
+    const customers = deriveCustomers().filter((c) => c.marketingConsent).sort((a, b) => b.count - a.count);
     els.voucherRecipientsList.innerHTML = customers.length
         ? customers
               .map(
@@ -904,7 +910,7 @@ function renderVoucherRecipients() {
             </div>`
               )
               .join("")
-        : `<p class="panel-empty">No customers yet.</p>`;
+        : `<p class="panel-empty">No customers have opted in to marketing emails yet.</p>`;
 }
 
 els.voucherRecipientsList.addEventListener("change", (e) => {
@@ -916,12 +922,12 @@ els.voucherRecipientsList.addEventListener("change", (e) => {
 });
 
 els.selectRepeatCustomersBtn.addEventListener("click", () => {
-    state.selectedCustomerIds = new Set(deriveCustomers().filter((c) => c.count > 1).map((c) => c.id));
+    state.selectedCustomerIds = new Set(deriveCustomers().filter((c) => c.count > 1 && c.marketingConsent).map((c) => c.id));
     renderVoucherRecipients();
 });
 
 els.selectAllCustomersBtn.addEventListener("click", () => {
-    state.selectedCustomerIds = new Set(deriveCustomers().map((c) => c.id));
+    state.selectedCustomerIds = new Set(deriveCustomers().filter((c) => c.marketingConsent).map((c) => c.id));
     renderVoucherRecipients();
 });
 
@@ -942,12 +948,15 @@ els.sendVoucherBtn.addEventListener("click", async () => {
     }
 
     try {
-        await apiFetch(`/api/admin/vouchers/${voucherId}/send`, {
+        const result = await apiFetch(`/api/admin/vouchers/${voucherId}/send`, {
             method: "POST",
             body: JSON.stringify({ customerIds: [...state.selectedCustomerIds] }),
         });
+        els.voucherSendStatus.textContent = result.skippedCount > 0
+            ? `Sent to ${result.sentCount}, skipped ${result.skippedCount} (no marketing consent) ✓`
+            : "Sent ✓";
         els.voucherSendStatus.classList.add("show");
-        setTimeout(() => els.voucherSendStatus.classList.remove("show"), 2500);
+        setTimeout(() => els.voucherSendStatus.classList.remove("show"), 4000);
         await loadVouchers();
         await loadEmailLog();
         renderEmailLog();

@@ -168,10 +168,13 @@ router.post("/:id/send", async (req, res, next) => {
         }
         const voucher = voucherResult.rows[0];
 
+        // Only customers who've actually opted in to marketing emails — enforced
+        // here too, not just in the admin UI, since this sends promotional content.
         const customersResult = await pool.query(
-            "SELECT id, name, email FROM customers WHERE id = ANY($1::int[])",
+            "SELECT id, name, email FROM customers WHERE id = ANY($1::int[]) AND marketing_consent = true",
             [customerIds]
         );
+        const skippedCount = customerIds.length - customersResult.rows.length;
 
         const subject = `A little something from Blue Bengal — ${voucherLabel(voucher)}`;
         let sentCount = 0;
@@ -180,7 +183,8 @@ router.post("/:id/send", async (req, res, next) => {
             const expiryNote = voucher.expires_at ? ` (valid until ${voucher.expires_at})` : "";
             const body = `Hi ${customer.name},\n\n${voucher.description}\n\n` +
                 `Use code ${voucher.code} on your next visit${expiryNote}.\n\n` +
-                `We hope to see you again soon!`;
+                `We hope to see you again soon!\n\n` +
+                `Don't want emails like this? Unsubscribe: ${frontendUrl(`/unsubscribe.html?email=${encodeURIComponent(customer.email)}`)}`;
             const html = emailLayout({
                 heading: "A little something for you 🎁",
                 bodyHtml: `
@@ -192,6 +196,9 @@ router.post("/:id/send", async (req, res, next) => {
                     </div>
                     ${button("Book a Table", frontendUrl("/booking.html"))}
                     <p style="margin:20px 0 0; font-size:13px; color:#6b5a4e; text-align:center;">We hope to see you again soon!</p>
+                    <p style="margin:14px 0 0; font-size:11px; color:#a89b8f; text-align:center;">
+                        <a href="${frontendUrl(`/unsubscribe.html?email=${encodeURIComponent(customer.email)}`)}" style="color:#a89b8f;">Unsubscribe from these emails</a>
+                    </p>
                 `,
             });
 
@@ -204,7 +211,7 @@ router.post("/:id/send", async (req, res, next) => {
             sentCount += 1;
         }
 
-        res.json({ success: true, sentCount });
+        res.json({ success: true, sentCount, skippedCount });
     } catch (err) {
         next(err);
     }
