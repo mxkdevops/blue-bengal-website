@@ -17,8 +17,12 @@ app.use(bookingsRouter);
 app.use("/api/admin/vouchers", vouchersRouter);
 app.use("/api/admin", adminRouter);
 
-// Serve the existing static frontend for local development
-app.use(express.static(path.join(__dirname, "..", "..")));
+// Serve the static frontend only for local development — in production the
+// frontend is hosted separately (S3/CloudFront), and this API server should
+// only ever answer API requests, never accidentally serve the site itself.
+if (process.env.NODE_ENV !== "production") {
+    app.use(express.static(path.join(__dirname, "..", "..")));
+}
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
