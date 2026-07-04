@@ -540,8 +540,18 @@ function contextualEmptyMessage() {
     return "No bookings match these filters.";
 }
 
+function formatShortDate(dateStr) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+}
+
 function renderBookingsList() {
     const rows = getFilteredBookings();
+    // A specific single date (Today/Tomorrow/arrow-navigated) makes the date
+    // redundant on every row, but multi-day views (Upcoming/Week/All) need it
+    // so bookings from different days aren't indistinguishable.
+    const spansMultipleDays = !els.dateFilter.value;
+
     els.bookingsListWrap.innerHTML = rows.length
         ? rows
               .map(
@@ -549,7 +559,7 @@ function renderBookingsList() {
             <div class="booking-list-row" data-id="${b.id}">
                 <span class="blr-name">${escapeHtml(b.name)}</span>
                 <span class="blr-guests">${b.guests} guest${b.guests === 1 ? "" : "s"}</span>
-                <span class="blr-when">${formatTime(b.booking_time)}</span>
+                <span class="blr-when">${spansMultipleDays ? `${formatShortDate(b.booking_date)}, ` : ""}${formatTime(b.booking_time)}</span>
                 <span class="status-badge status-${b.status}">${b.status}</span>
             </div>`
               )
