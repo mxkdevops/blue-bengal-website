@@ -1,6 +1,8 @@
-// Use the local backend when the site is served from localhost, otherwise the production API
+// localhost -> local backend, the test subdomain -> the test backend, anything else -> production
 const API_BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
     ? window.location.origin
+    : window.location.hostname.startsWith("test.")
+    ? "https://api-test.bluebengal-carshalton.co.uk"
     : "https://api.bluebengal-carshalton.co.uk";
 
 const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

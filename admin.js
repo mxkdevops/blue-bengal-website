@@ -1,5 +1,7 @@
 const API_BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
     ? window.location.origin
+    : window.location.hostname.startsWith("test.")
+    ? "https://api-test.bluebengal-carshalton.co.uk"
     : "https://api.bluebengal-carshalton.co.uk";
 
 const NOTIF_SEEN_KEY = "bb_admin_notif_last_seen";
