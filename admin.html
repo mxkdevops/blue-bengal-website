@@ -372,6 +372,35 @@
                 </div>
 
                 <div class="panel">
+                    <h2>New Booking Notifications</h2>
+                    <p class="section-subtitle" style="margin-bottom:16px;">
+                        Get an email whenever a new booking comes in, with a one-click link to confirm or reject it —
+                        no need to log into the admin panel first.
+                    </p>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Email me about new bookings</div>
+                            <div class="settings-desc">Sent for every new booking, whether auto-confirmed or pending review.</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="adminNotificationEnabledToggle">
+                            <span class="switch-track"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Notification email address</div>
+                            <div class="settings-desc">Where these emails should go — can be different from your public contact email.</div>
+                        </div>
+                        <input type="email" class="settings-number" id="adminNotificationEmailInput" placeholder="you@example.com" style="width:220px;">
+                    </div>
+                    <div class="settings-save-row">
+                        <button class="btn btn-gold" id="saveAdminNotificationBtn">Save</button>
+                        <span class="save-status" id="adminNotificationSaveStatus">Saved ✓</span>
+                    </div>
+                </div>
+
+                <div class="panel">
                     <h2>Reminders &amp; Feedback Emails</h2>
                     <p class="section-subtitle" style="margin-bottom:16px;">
                         Email sending isn't fully wired up yet (no provider configured) — triggered emails are logged in the

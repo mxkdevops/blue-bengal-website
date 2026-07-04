@@ -5,6 +5,7 @@ const cors = require("cors");
 const bookingsRouter = require("./routes/bookings");
 const adminRouter = require("./routes/admin");
 const vouchersRouter = require("./routes/vouchers");
+const adminReviewRouter = require("./routes/adminReview");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.get("/health", (req, res) => res.json({ success: true, status: "ok" }));
 
 app.use(bookingsRouter);
+app.use(adminReviewRouter);
 app.use("/api/admin/vouchers", vouchersRouter);
 app.use("/api/admin", adminRouter);
 

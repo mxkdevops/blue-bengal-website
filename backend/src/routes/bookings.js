@@ -4,6 +4,7 @@ const { validateBooking } = require("../utils/validateBooking");
 const { generateBookingCode } = require("../utils/bookingCode");
 const { checkAvailability } = require("../utils/checkAvailability");
 const { sendBookingConfirmationEmail } = require("../utils/sendConfirmationEmail");
+const { sendAdminNotificationEmail, generateActionToken } = require("../utils/sendAdminNotificationEmail");
 const { sendEmail } = require("../utils/emailSender");
 const { formatDate, formatTime } = require("../utils/formatters");
 const { emailLayout, detailsTable, button, frontendUrl } = require("../utils/emailTemplate");
@@ -157,15 +158,16 @@ router.post("/create-booking", async (req, res, next) => {
 
         const status = settings.auto_accept_bookings ? "confirmed" : "pending";
         let bookingCode = generateBookingCode();
+        const adminActionToken = generateActionToken();
 
         let bookingResult;
         for (let attempt = 0; attempt < 5; attempt++) {
             try {
                 bookingResult = await client.query(
-                    `INSERT INTO bookings (booking_code, customer_id, booking_date, booking_time, guests, status, notes)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    `INSERT INTO bookings (booking_code, customer_id, booking_date, booking_time, guests, status, notes, admin_action_token)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                      RETURNING id, booking_code, booking_date, booking_time, guests, status`,
-                    [bookingCode, customerId, data.date, data.time, data.guests, status, data.notes || null]
+                    [bookingCode, customerId, data.date, data.time, data.guests, status, data.notes || null, adminActionToken]
                 );
                 break;
             } catch (err) {
@@ -197,6 +199,10 @@ router.post("/create-booking", async (req, res, next) => {
                 console.error("Failed to send booking confirmation email:", err)
             );
         }
+
+        sendAdminNotificationEmail(booking.id).catch((err) =>
+            console.error("Failed to send admin notification email:", err)
+        );
     } catch (err) {
         await client.query("ROLLBACK");
         next(err);

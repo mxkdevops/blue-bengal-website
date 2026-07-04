@@ -160,10 +160,13 @@ const VALID_SLOT_INTERVALS = [15, 30, 45, 60];
 
 const VALID_WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const SETTINGS_COLUMNS = `auto_accept_bookings, max_guests_per_booking, min_guests_per_booking,
     opening_time, closing_time, min_advance_notice_minutes, slot_interval_minutes,
     confirmation_message, closed_weekdays, max_covers_per_slot,
     reminder_enabled, reminder_hours_before, feedback_enabled, feedback_hours_after, feedback_link,
+    admin_notification_enabled, admin_notification_email,
     updated_at`;
 
 // GET /api/admin/settings
@@ -195,6 +198,8 @@ router.patch("/settings", async (req, res, next) => {
             feedbackEnabled,
             feedbackHoursAfter,
             feedbackLink,
+            adminNotificationEnabled,
+            adminNotificationEmail,
         } = req.body;
         const updates = [];
         const params = [];
@@ -260,6 +265,14 @@ router.patch("/settings", async (req, res, next) => {
         if (typeof feedbackLink === "string" && feedbackLink.trim()) {
             params.push(feedbackLink.trim());
             updates.push(`feedback_link = $${params.length}`);
+        }
+        if (typeof adminNotificationEnabled === "boolean") {
+            params.push(adminNotificationEnabled);
+            updates.push(`admin_notification_enabled = $${params.length}`);
+        }
+        if (typeof adminNotificationEmail === "string" && EMAIL_RE.test(adminNotificationEmail.trim())) {
+            params.push(adminNotificationEmail.trim());
+            updates.push(`admin_notification_email = $${params.length}`);
         }
 
         if (updates.length === 0) {

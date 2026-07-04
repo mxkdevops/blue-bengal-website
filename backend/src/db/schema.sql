@@ -29,6 +29,11 @@ CREATE TABLE IF NOT EXISTS bookings (
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS reminder_sent_at TIMESTAMPTZ;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS feedback_sent_at TIMESTAMPTZ;
 
+-- Secret, per-booking token that lets a one-click "Confirm/Reject" link in the
+-- admin notification email act on this specific booking without needing to
+-- log into the admin panel. Never shown to the guest.
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS admin_action_token VARCHAR(64);
+
 CREATE INDEX IF NOT EXISTS idx_bookings_date ON bookings(booking_date);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_customer ON bookings(customer_id);
@@ -63,6 +68,11 @@ ALTER TABLE settings ADD COLUMN IF NOT EXISTS feedback_link TEXT NOT NULL DEFAUL
 
 -- Total covers (guests) allowed across all bookings in a single time slot. NULL = unlimited.
 ALTER TABLE settings ADD COLUMN IF NOT EXISTS max_covers_per_slot INTEGER;
+
+-- Notify the restaurant by email whenever a new booking comes in, with a
+-- one-click confirm/reject link.
+ALTER TABLE settings ADD COLUMN IF NOT EXISTS admin_notification_enabled BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE settings ADD COLUMN IF NOT EXISTS admin_notification_email VARCHAR(255);
 
 INSERT INTO settings (id, auto_accept_bookings)
 VALUES (1, false)
@@ -124,4 +134,4 @@ ALTER TABLE email_log ADD COLUMN IF NOT EXISTS voucher_id INTEGER REFERENCES vou
 -- idempotent across both fresh installs and databases that already had the narrower check.
 ALTER TABLE email_log DROP CONSTRAINT IF EXISTS email_log_email_type_check;
 ALTER TABLE email_log DROP CONSTRAINT IF EXISTS email_log_type_check;
-ALTER TABLE email_log ADD CONSTRAINT email_log_type_check CHECK (email_type IN ('reminder', 'feedback', 'voucher', 'confirmation', 'cancellation'));
+ALTER TABLE email_log ADD CONSTRAINT email_log_type_check CHECK (email_type IN ('reminder', 'feedback', 'voucher', 'confirmation', 'cancellation', 'admin_notification'));

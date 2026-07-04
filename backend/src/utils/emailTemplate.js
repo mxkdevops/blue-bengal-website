@@ -23,6 +23,14 @@ function frontendUrl(path) {
     return `${base}${path}`;
 }
 
+// For links to pages the backend itself renders (like the one-click admin
+// booking review page) — different from frontendUrl(), which points at the
+// separately-hosted static site (S3/CloudFront), not this API server.
+function apiUrl(path) {
+    const base = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`;
+    return `${base}${path}`;
+}
+
 function emailLayout({ heading, bodyHtml }) {
     return `<!DOCTYPE html>
 <html>
@@ -79,4 +87,4 @@ function button(label, href, variant = "primary") {
     </div>`;
 }
 
-module.exports = { BRAND, CONTACT, frontendUrl, emailLayout, detailsTable, button };
+module.exports = { BRAND, CONTACT, frontendUrl, apiUrl, emailLayout, detailsTable, button };

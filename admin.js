@@ -99,6 +99,11 @@ const els = {
     notificationsList: document.getElementById("notificationsList"),
     emailLogList: document.getElementById("emailLogList"),
 
+    adminNotificationEnabledToggle: document.getElementById("adminNotificationEnabledToggle"),
+    adminNotificationEmailInput: document.getElementById("adminNotificationEmailInput"),
+    saveAdminNotificationBtn: document.getElementById("saveAdminNotificationBtn"),
+    adminNotificationSaveStatus: document.getElementById("adminNotificationSaveStatus"),
+
     reminderEnabledToggle: document.getElementById("reminderEnabledToggle"),
     reminderHoursInput: document.getElementById("reminderHoursInput"),
     feedbackEnabledToggle: document.getElementById("feedbackEnabledToggle"),
@@ -269,6 +274,7 @@ const EMAIL_TYPE_LABELS = {
     voucher: "Voucher",
     confirmation: "Confirmation",
     cancellation: "Cancellation",
+    admin_notification: "Admin Notification",
 };
 
 function renderEmailLog() {
@@ -401,6 +407,9 @@ async function loadSettings() {
     els.maxCoversInput.value = s.max_covers_per_slot === null ? "" : s.max_covers_per_slot;
     els.minAdvanceNoticeInput.value = String(s.min_advance_notice_minutes);
     els.confirmationMessageInput.value = s.confirmation_message;
+
+    els.adminNotificationEnabledToggle.checked = s.admin_notification_enabled;
+    els.adminNotificationEmailInput.value = s.admin_notification_email || "";
 
     els.reminderEnabledToggle.checked = s.reminder_enabled;
     els.reminderHoursInput.value = String(s.reminder_hours_before);
@@ -838,6 +847,27 @@ els.saveSettingsBtn.addEventListener("click", async () => {
         setTimeout(() => els.saveStatus.classList.remove("show"), 2000);
     } catch (err) {
         alert("Could not save settings: " + err.message);
+    }
+});
+
+els.saveAdminNotificationBtn.addEventListener("click", async () => {
+    const email = els.adminNotificationEmailInput.value.trim();
+    if (els.adminNotificationEnabledToggle.checked && !email) {
+        alert("Enter an email address to receive new booking notifications.");
+        return;
+    }
+    try {
+        await apiFetch("/api/admin/settings", {
+            method: "PATCH",
+            body: JSON.stringify({
+                adminNotificationEnabled: els.adminNotificationEnabledToggle.checked,
+                adminNotificationEmail: email,
+            }),
+        });
+        els.adminNotificationSaveStatus.classList.add("show");
+        setTimeout(() => els.adminNotificationSaveStatus.classList.remove("show"), 2000);
+    } catch (err) {
+        alert("Could not save notification settings: " + err.message);
     }
 });
 
