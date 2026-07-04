@@ -421,12 +421,6 @@ body.admin-body {
     white-space: nowrap;
 }
 
-.booking-list-row .blr-code {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    flex: none;
-}
-
 .booking-list-row .blr-when {
     font-size: 0.86rem;
     color: var(--text-muted);
