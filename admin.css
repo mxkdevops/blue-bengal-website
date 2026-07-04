@@ -421,6 +421,7 @@ body.admin-body {
     white-space: nowrap;
 }
 
+.booking-list-row .blr-guests,
 .booking-list-row .blr-when {
     font-size: 0.86rem;
     color: var(--text-muted);

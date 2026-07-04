@@ -548,6 +548,7 @@ function renderBookingsList() {
                   (b) => `
             <div class="booking-list-row" data-id="${b.id}">
                 <span class="blr-name">${escapeHtml(b.name)}</span>
+                <span class="blr-guests">${b.guests} guest${b.guests === 1 ? "" : "s"}</span>
                 <span class="blr-when">${formatTime(b.booking_time)}</span>
                 <span class="status-badge status-${b.status}">${b.status}</span>
             </div>`
