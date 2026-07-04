@@ -1,35 +1,79 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Populate time slots (5:30 PM - 9:00 PM, every 30 minutes)
+// Use the local backend when the site is served from localhost, otherwise the production API
+const API_BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ? window.location.origin
+    : "https://api.bluebengal-carshalton.co.uk";
+
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+document.addEventListener("DOMContentLoaded", async function () {
+    let dateInput = document.getElementById("date");
     let timeSelect = document.getElementById("time");
-    let startTime = 17.5; // 5:30 PM
-    let endTime = 21.0; // 9:00 PM
+    let guestsSelect = document.getElementById("guests");
+    let dateError = document.getElementById("dateError");
+    let submitBtn = document.querySelector("#bookingForm button[type='submit']");
 
-    while (startTime <= endTime) {
-        let hour = Math.floor(startTime);
-        let minutes = startTime % 1 === 0 ? "00" : "30";
-        let ampm = hour >= 12 ? "PM" : "AM";
-        let displayHour = hour > 12 ? hour - 12 : hour;
+    // Restrict past dates in date picker
+    let today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
 
-        let option = document.createElement("option");
-        option.value = `${hour}:${minutes}`;
-        option.textContent = `${displayHour}:${minutes} ${ampm}`;
-        timeSelect.appendChild(option);
+    // Sensible fallback in case the settings request fails
+    let openingTime = "17:30";
+    let closingTime = "21:00";
+    let minGuests = 1;
+    let maxGuests = 20;
+    let slotIntervalMinutes = 30;
+    let closedWeekdays = [];
 
-        startTime += 0.5;
+    try {
+        const response = await fetch(`${API_BASE_URL}/booking-settings`);
+        const result = await response.json();
+        if (result.success) {
+            ({ openingTime, closingTime, minGuestsPerBooking: minGuests, maxGuestsPerBooking: maxGuests, slotIntervalMinutes, closedWeekdays } = result.settings);
+        }
+    } catch (error) {
+        console.error("Could not load booking settings, using defaults.", error);
     }
 
-    // Populate guests dropdown (1-20)
-    let guestsSelect = document.getElementById("guests");
-    for (let i = 1; i <= 20; i++) {
+    // Populate time slots between opening and closing time
+    const [openHour, openMinute] = openingTime.split(":").map(Number);
+    const [closeHour, closeMinute] = closingTime.split(":").map(Number);
+    let minutes = openHour * 60 + openMinute;
+    const closeMinutes = closeHour * 60 + closeMinute;
+
+    while (minutes <= closeMinutes) {
+        let hour = Math.floor(minutes / 60);
+        let mins = minutes % 60;
+        let ampm = hour >= 12 ? "PM" : "AM";
+        let displayHour = hour % 12 === 0 ? 12 : hour % 12;
+
+        let option = document.createElement("option");
+        option.value = `${String(hour).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+        option.textContent = `${displayHour}:${String(mins).padStart(2, "0")} ${ampm}`;
+        timeSelect.appendChild(option);
+
+        minutes += slotIntervalMinutes;
+    }
+
+    // Populate guests dropdown
+    for (let i = minGuests; i <= maxGuests; i++) {
         let option = document.createElement("option");
         option.value = i;
         option.textContent = i;
         guestsSelect.appendChild(option);
     }
 
-    // Restrict past dates in date picker
-    let today = new Date().toISOString().split("T")[0];
-    document.getElementById("date").setAttribute("min", today);
+    // Warn if the chosen date falls on a day we're closed
+    dateInput.addEventListener("change", () => {
+        if (!dateInput.value) return;
+        const [y, m, d] = dateInput.value.split("-").map(Number);
+        const weekday = new Date(y, m - 1, d).getDay();
+        const isClosed = closedWeekdays.includes(weekday);
+
+        dateError.hidden = !isClosed;
+        dateError.textContent = isClosed ? `We're closed on ${WEEKDAY_NAMES[weekday]}s. Please choose another date.` : "";
+        timeSelect.disabled = isClosed;
+        submitBtn.disabled = isClosed;
+    });
 });
 
 // Handle Booking Form Submission
@@ -49,7 +93,7 @@ document.getElementById("bookingForm").addEventListener("submit", async function
     }
 
     try {
-        let response = await fetch("https://api.bluebengal-carshalton.co.uk/create-booking", {
+        let response = await fetch(`${API_BASE_URL}/create-booking`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, phone, date, time, guests, status: "Pending" })
@@ -63,7 +107,8 @@ document.getElementById("bookingForm").addEventListener("submit", async function
                 date: date,
                 time: time,
                 guests: guests,
-                phone: phone
+                phone: phone,
+                confirmationMessage: result.booking.confirmationMessage
             }));
 
             // Redirect to Thank You page

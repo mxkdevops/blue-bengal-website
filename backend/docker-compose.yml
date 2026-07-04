@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bluebengal-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bluebengal
+      POSTGRES_PASSWORD: bluebengal
+      POSTGRES_DB: bluebengal
+    ports:
+      - "5432:5432"
+    volumes:
+      - bluebengal-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bluebengal -d bluebengal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  bluebengal-pgdata:
