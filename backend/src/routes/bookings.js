@@ -4,8 +4,30 @@ const { validateBooking } = require("../utils/validateBooking");
 const { generateBookingCode } = require("../utils/bookingCode");
 const { checkAvailability } = require("../utils/checkAvailability");
 const { sendBookingConfirmationEmail } = require("../utils/sendConfirmationEmail");
+const { sendEmail } = require("../utils/emailSender");
+const { formatDate, formatTime } = require("../utils/formatters");
+const { emailLayout, detailsTable, button, frontendUrl } = require("../utils/emailTemplate");
 
 const router = express.Router();
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const NOT_FOUND_MESSAGE = "We couldn't find a booking with that code and email. Please check and try again.";
+
+async function findBookingByCodeAndEmail(client, code, email) {
+    const result = await client.query(
+        `SELECT b.id, b.booking_code, b.booking_date, b.booking_time, b.guests, b.status,
+                c.name, c.email
+         FROM bookings b
+         JOIN customers c ON c.id = b.customer_id
+         WHERE b.booking_code = $1`,
+        [(code || "").toString().trim().toUpperCase()]
+    );
+    if (result.rows.length === 0) return null;
+    const booking = result.rows[0];
+    if (booking.email.toLowerCase() !== (email || "").toString().trim().toLowerCase()) return null;
+    return booking;
+}
 
 function formatMinutes(minutes) {
     if (minutes % 1440 === 0) {
@@ -147,6 +169,197 @@ router.post("/create-booking", async (req, res, next) => {
         next(err);
     } finally {
         client.release();
+    }
+});
+
+// GET /booking/:code?email=... - guest looks up their own booking
+router.get("/booking/:code", async (req, res, next) => {
+    try {
+        const booking = await findBookingByCodeAndEmail(pool, req.params.code, req.query.email);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: NOT_FOUND_MESSAGE });
+        }
+        res.json({
+            success: true,
+            booking: {
+                bookingCode: booking.booking_code,
+                name: booking.name,
+                date: booking.booking_date,
+                time: booking.booking_time,
+                guests: booking.guests,
+                status: booking.status,
+            },
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// PATCH /booking/:code - guest modifies their own booking's date/time/guests
+router.patch("/booking/:code", async (req, res, next) => {
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+
+        const booking = await findBookingByCodeAndEmail(client, req.params.code, req.body.email);
+        if (!booking) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({ success: false, message: NOT_FOUND_MESSAGE });
+        }
+        if (booking.status === "cancelled" || booking.status === "rejected") {
+            await client.query("ROLLBACK");
+            return res.status(400).json({
+                success: false,
+                message: "This booking can no longer be changed online. Please call us on 020 8647 0286.",
+            });
+        }
+
+        const date = DATE_RE.test(req.body.date || "") ? req.body.date : booking.booking_date;
+        const time = TIME_RE.test(req.body.time || "") ? req.body.time : booking.booking_time.slice(0, 5);
+        const guests = Number.isInteger(req.body.guests) && req.body.guests > 0 ? req.body.guests : booking.guests;
+
+        const settingsResult = await client.query(
+            `SELECT max_guests_per_booking, min_guests_per_booking, opening_time, closing_time,
+                    min_advance_notice_minutes, slot_interval_minutes, closed_weekdays
+             FROM settings WHERE id = 1`
+        );
+        const settings = settingsResult.rows[0];
+
+        if (guests < settings.min_guests_per_booking || guests > settings.max_guests_per_booking) {
+            await client.query("ROLLBACK");
+            return res.status(400).json({
+                success: false,
+                message: `Bookings must be between ${settings.min_guests_per_booking} and ${settings.max_guests_per_booking} guests. Please call us for other party sizes.`,
+            });
+        }
+
+        const availabilityError = await checkAvailability(client, settings, date, time);
+        if (availabilityError) {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ success: false, message: availabilityError });
+        }
+
+        if (settings.min_advance_notice_minutes > 0) {
+            const [y, mo, d] = date.split("-").map(Number);
+            const [hh, mm] = time.split(":").map(Number);
+            const bookingDateTime = new Date(y, mo - 1, d, hh, mm);
+            const minutesUntilBooking = (bookingDateTime.getTime() - Date.now()) / 60000;
+            if (minutesUntilBooking < settings.min_advance_notice_minutes) {
+                await client.query("ROLLBACK");
+                return res.status(400).json({
+                    success: false,
+                    message: `Changes must be made at least ${formatMinutes(settings.min_advance_notice_minutes)} before the booking time.`,
+                });
+            }
+        }
+
+        const result = await client.query(
+            `UPDATE bookings SET booking_date = $1, booking_time = $2, guests = $3, updated_at = now()
+             WHERE id = $4
+             RETURNING id, booking_code, booking_date, booking_time, guests, status`,
+            [date, time, guests, booking.id]
+        );
+
+        await client.query("COMMIT");
+
+        const updated = result.rows[0];
+        res.json({
+            success: true,
+            booking: {
+                bookingCode: updated.booking_code,
+                date: updated.booking_date,
+                time: updated.booking_time,
+                guests: updated.guests,
+                status: updated.status,
+            },
+        });
+
+        const manageUrl = frontendUrl(`/manage-booking.html?code=${encodeURIComponent(updated.booking_code)}`);
+        const subject = `Your booking has been updated — Blue Bengal`;
+        const body = `Hi ${booking.name},\n\nYour booking has been updated:\n` +
+            `${formatDate(updated.booking_date)} at ${formatTime(updated.booking_time.slice(0, 5))}, ${updated.guests} guests (${updated.booking_code}).`;
+        const html = emailLayout({
+            heading: "Your booking has been updated",
+            bodyHtml: `
+                <p style="margin:0 0 6px;">Hi ${booking.name},</p>
+                <p style="margin:0 0 16px; line-height:1.6;">Here are your updated booking details:</p>
+                ${detailsTable([
+                    ["Booking Code", updated.booking_code],
+                    ["Date", formatDate(updated.booking_date)],
+                    ["Time", formatTime(updated.booking_time.slice(0, 5))],
+                    ["Guests", updated.guests],
+                ])}
+                ${button("Manage Your Booking", manageUrl)}
+            `,
+        });
+        sendEmail({ to: booking.email, subject, body, html })
+            .then(({ status }) =>
+                pool.query(
+                    `INSERT INTO email_log (booking_id, email_type, recipient, subject, body, status)
+                     VALUES ($1, 'confirmation', $2, $3, $4, $5)`,
+                    [updated.id, booking.email, subject, body, status]
+                )
+            )
+            .catch((err) => console.error("Failed to send booking-updated email:", err));
+    } catch (err) {
+        await client.query("ROLLBACK");
+        next(err);
+    } finally {
+        client.release();
+    }
+});
+
+// POST /booking/:code/cancel - guest cancels their own booking
+router.post("/booking/:code/cancel", async (req, res, next) => {
+    try {
+        const booking = await findBookingByCodeAndEmail(pool, req.params.code, req.body.email);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: NOT_FOUND_MESSAGE });
+        }
+        if (booking.status === "cancelled") {
+            return res.json({ success: true, booking: { bookingCode: booking.booking_code, status: "cancelled" } });
+        }
+
+        const result = await pool.query(
+            `UPDATE bookings SET status = 'cancelled', updated_at = now() WHERE id = $1
+             RETURNING id, booking_code, booking_date, booking_time, guests, status`,
+            [booking.id]
+        );
+        const updated = result.rows[0];
+        res.json({
+            success: true,
+            booking: { bookingCode: updated.booking_code, status: updated.status },
+        });
+
+        const subject = "Your booking has been cancelled — Blue Bengal";
+        const body = `Hi ${booking.name},\n\nYour booking ${updated.booking_code} for ` +
+            `${formatDate(updated.booking_date)} at ${formatTime(updated.booking_time.slice(0, 5))} has been cancelled. ` +
+            `We hope to welcome you another time.`;
+        const html = emailLayout({
+            heading: "Booking Cancelled",
+            bodyHtml: `
+                <p style="margin:0 0 6px;">Hi ${booking.name},</p>
+                <p style="margin:0 0 16px; line-height:1.6;">Your booking has been cancelled as requested.</p>
+                ${detailsTable([
+                    ["Booking Code", updated.booking_code],
+                    ["Date", formatDate(updated.booking_date)],
+                    ["Time", formatTime(updated.booking_time.slice(0, 5))],
+                ])}
+                ${button("Book Again", frontendUrl("/booking.html"))}
+                <p style="margin:20px 0 0; font-size:13px; color:#6b5a4e; text-align:center;">We hope to welcome you another time!</p>
+            `,
+        });
+        sendEmail({ to: booking.email, subject, body, html })
+            .then(({ status }) =>
+                pool.query(
+                    `INSERT INTO email_log (booking_id, email_type, recipient, subject, body, status)
+                     VALUES ($1, 'cancellation', $2, $3, $4, $5)`,
+                    [updated.id, booking.email, subject, body, status]
+                )
+            )
+            .catch((err) => console.error("Failed to send booking-cancelled email:", err));
+    } catch (err) {
+        next(err);
     }
 });
 

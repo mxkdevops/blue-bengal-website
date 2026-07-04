@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserve a Table — Blue Bengal Carshalton</title>
+    <title>Manage Your Booking — Blue Bengal Carshalton</title>
     <link rel="icon" type="image/png" href="img/fevicon.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,6 @@
                 <a href="index.html#menu">Menu</a>
                 <a href="index.html#hours">Opening Hours</a>
                 <a href="index.html#contact">Contact</a>
-                <a href="manage-booking.html">Manage Booking</a>
                 <a href="booking.html" class="btn btn-gold">Reserve a Table</a>
             </div>
         </nav>
@@ -33,50 +32,55 @@
         <img src="img/hero-image.jpg" alt="Blue Bengal restaurant interior">
         <div class="hero-content">
             <span class="eyebrow">Blue Bengal Carshalton</span>
-            <h1>Reserve Your Table</h1>
+            <h1>Manage Your Booking</h1>
         </div>
     </section>
 
     <div class="booking-wrap">
-        <div class="booking-card">
-            <h2>Make a Reservation</h2>
-            <p class="section-subtitle">Fill in your details and we'll confirm your booking shortly.</p>
-
-            <form id="bookingForm">
+        <!-- Lookup form -->
+        <div class="booking-card" id="lookupCard">
+            <h2>Find Your Booking</h2>
+            <p class="section-subtitle">Enter your booking code and the email you booked with.</p>
+            <div id="lookupError" class="field-error" hidden></div>
+            <form id="lookupForm">
                 <div class="field">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" required>
+                    <label for="lookupCode">Booking Code</label>
+                    <input type="text" id="lookupCode" placeholder="e.g. BB-AB12CD" required>
                 </div>
-
                 <div class="field">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" required>
+                    <label for="lookupEmail">Email</label>
+                    <input type="email" id="lookupEmail" required>
                 </div>
+                <button type="submit" class="btn btn-gold btn-block">Find Booking</button>
+            </form>
+        </div>
 
-                <div class="field">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" pattern="[0-9]{11}" required>
-                </div>
+        <!-- Booking details / edit form -->
+        <div class="booking-card" id="detailsCard" hidden>
+            <h2>Your Booking</h2>
+            <div class="confirmation-details" id="statusBanner"></div>
 
+            <form id="editForm">
                 <div class="field-row">
                     <div class="field">
-                        <label for="date">Date</label>
-                        <input type="date" id="date" required>
-                        <div class="field-error" id="dateError" hidden></div>
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate" required>
                     </div>
                     <div class="field">
-                        <label for="time">Time</label>
-                        <select id="time" required></select>
+                        <label for="editTime">Time</label>
+                        <select id="editTime" required></select>
                     </div>
                 </div>
-
                 <div class="field">
-                    <label for="guests">Number of Guests</label>
-                    <select id="guests" required></select>
+                    <label for="editGuests">Number of Guests</label>
+                    <select id="editGuests" required></select>
                 </div>
-
-                <button type="submit" class="btn btn-gold btn-block">Book Now</button>
+                <div id="editError" class="field-error" hidden></div>
+                <button type="submit" class="btn btn-gold btn-block" id="saveChangesBtn">Save Changes</button>
             </form>
+
+            <button type="button" class="btn" id="cancelBookingBtn" style="width:100%; margin-top:12px; background:transparent; border:2px solid #a3242f; color:#a3242f;">Cancel This Booking</button>
+            <button type="button" class="btn" id="searchAgainBtn" style="width:100%; margin-top:12px; background:transparent; border:2px solid var(--cream-alt); color:var(--text-muted);">Search Again</button>
         </div>
     </div>
 
@@ -90,6 +94,6 @@
             document.getElementById("navLinks").classList.toggle("open");
         });
     </script>
-    <script src="script.js"></script>
+    <script src="manage-booking.js"></script>
 </body>
 </html>

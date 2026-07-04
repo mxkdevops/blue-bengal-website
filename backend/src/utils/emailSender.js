@@ -2,7 +2,7 @@
 // records a "stub" entry — this lets the reminder/feedback scheduler be built
 // and verified end-to-end before real credentials exist. Once RESEND_API_KEY
 // is set in .env, it sends for real via Resend and records "sent" instead.
-async function sendEmail({ to, subject, body }) {
+async function sendEmail({ to, subject, body, html }) {
     if (!process.env.RESEND_API_KEY) {
         console.log(`[email:stub] to=${to} subject="${subject}"`);
         return { status: "stub" };
@@ -19,6 +19,7 @@ async function sendEmail({ to, subject, body }) {
             to,
             subject,
             text: body,
+            ...(html ? { html } : {}),
         }),
     });
 

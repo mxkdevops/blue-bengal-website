@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db/pool");
 const adminAuth = require("../middleware/adminAuth");
 const { sendEmail } = require("../utils/emailSender");
+const { emailLayout, button, frontendUrl } = require("../utils/emailTemplate");
 
 const router = express.Router();
 router.use(adminAuth);
@@ -176,11 +177,25 @@ router.post("/:id/send", async (req, res, next) => {
         let sentCount = 0;
 
         for (const customer of customersResult.rows) {
+            const expiryNote = voucher.expires_at ? ` (valid until ${voucher.expires_at})` : "";
             const body = `Hi ${customer.name},\n\n${voucher.description}\n\n` +
-                `Use code ${voucher.code} on your next visit${voucher.expires_at ? ` (valid until ${voucher.expires_at})` : ""}.\n\n` +
+                `Use code ${voucher.code} on your next visit${expiryNote}.\n\n` +
                 `We hope to see you again soon!`;
+            const html = emailLayout({
+                heading: "A little something for you 🎁",
+                bodyHtml: `
+                    <p style="margin:0 0 6px;">Hi ${customer.name},</p>
+                    <p style="margin:0 0 16px; line-height:1.6;">${voucher.description}</p>
+                    <div style="text-align:center; margin:20px 0; padding:16px; background:#f6ead9; border-radius:8px; border:2px dashed #c9a227;">
+                        <div style="font-size:22px; font-weight:bold; letter-spacing:2px; color:#7a1f30;">${voucher.code}</div>
+                        ${voucher.expires_at ? `<div style="font-size:12px; color:#6b5a4e; margin-top:6px;">Valid until ${voucher.expires_at}</div>` : ""}
+                    </div>
+                    ${button("Book a Table", frontendUrl("/booking.html"))}
+                    <p style="margin:20px 0 0; font-size:13px; color:#6b5a4e; text-align:center;">We hope to see you again soon!</p>
+                `,
+            });
 
-            const { status } = await sendEmail({ to: customer.email, subject, body });
+            const { status } = await sendEmail({ to: customer.email, subject, body, html });
             await pool.query(
                 `INSERT INTO email_log (voucher_id, email_type, recipient, subject, body, status)
                  VALUES ($1, 'voucher', $2, $3, $4, $5)`,

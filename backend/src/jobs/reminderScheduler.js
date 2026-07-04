@@ -1,24 +1,12 @@
 const pool = require("../db/pool");
 const { sendEmail } = require("../utils/emailSender");
+const { formatDate, formatTime } = require("../utils/formatters");
+const { emailLayout, detailsTable, button, frontendUrl } = require("../utils/emailTemplate");
 
 const CHECK_INTERVAL_MS = 5 * 60 * 1000; // check every 5 minutes
 
-function formatDate(dateStr) {
-    const [y, m, d] = dateStr.split("-").map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString("en-GB", {
-        weekday: "long", day: "numeric", month: "long", year: "numeric",
-    });
-}
-
-function formatTime(timeStr) {
-    const [h, m] = timeStr.split(":").map(Number);
-    const ampm = h >= 12 ? "PM" : "AM";
-    const displayHour = h % 12 === 0 ? 12 : h % 12;
-    return `${displayHour}:${String(m).padStart(2, "0")} ${ampm}`;
-}
-
-async function sendAndLog({ bookingId, emailType, recipient, subject, body }) {
-    const { status } = await sendEmail({ to: recipient, subject, body });
+async function sendAndLog({ bookingId, emailType, recipient, subject, body, html }) {
+    const { status } = await sendEmail({ to: recipient, subject, body, html });
     await pool.query(
         `INSERT INTO email_log (booking_id, email_type, recipient, subject, body, status)
          VALUES ($1, $2, $3, $4, $5, $6)`,
@@ -45,12 +33,27 @@ async function processReminders(settings) {
     );
 
     for (const b of due.rows) {
+        const manageUrl = frontendUrl(`/manage-booking.html?code=${encodeURIComponent(b.booking_code)}`);
         const subject = `Reminder: your table at Blue Bengal — ${formatDate(b.booking_date)}`;
         const body = `Hi ${b.name},\n\nJust a reminder of your booking at Blue Bengal Carshalton:\n` +
             `${formatDate(b.booking_date)} at ${formatTime(b.booking_time.slice(0, 5))}, ${b.guests} guests (${b.booking_code}).\n\n` +
-            `We look forward to seeing you!`;
+            `Need to change or cancel? ${manageUrl}\n\nWe look forward to seeing you!`;
+        const html = emailLayout({
+            heading: "See you soon! ⏰",
+            bodyHtml: `
+                <p style="margin:0 0 6px;">Hi ${b.name},</p>
+                <p style="margin:0 0 6px; line-height:1.6;">Just a reminder of your upcoming booking at Blue Bengal Carshalton.</p>
+                ${detailsTable([
+                    ["Booking Code", b.booking_code],
+                    ["Date", formatDate(b.booking_date)],
+                    ["Time", formatTime(b.booking_time.slice(0, 5))],
+                    ["Guests", b.guests],
+                ])}
+                ${button("Manage Your Booking", manageUrl)}
+            `,
+        });
 
-        await sendAndLog({ bookingId: b.id, emailType: "reminder", recipient: b.email, subject, body });
+        await sendAndLog({ bookingId: b.id, emailType: "reminder", recipient: b.email, subject, body, html });
         await pool.query("UPDATE bookings SET reminder_sent_at = now() WHERE id = $1", [b.id]);
     }
 }
@@ -73,8 +76,17 @@ async function processFeedbackRequests(settings) {
         const body = `Hi ${b.name},\n\nThank you for dining with us on ${formatDate(b.booking_date)}. ` +
             `We'd love to hear how it went — please share your feedback here:\n${settings.feedback_link}\n\n` +
             `Thank you for your support!`;
+        const html = emailLayout({
+            heading: "How was your visit? 🍽️",
+            bodyHtml: `
+                <p style="margin:0 0 6px;">Hi ${b.name},</p>
+                <p style="margin:0 0 16px; line-height:1.6;">Thank you for dining with us on ${formatDate(b.booking_date)}. We'd love to hear how it went.</p>
+                ${button("Share Your Feedback", settings.feedback_link)}
+                <p style="margin:20px 0 0; font-size:13px; color:#6b5a4e; text-align:center;">Thank you for your support!</p>
+            `,
+        });
 
-        await sendAndLog({ bookingId: b.id, emailType: "feedback", recipient: b.email, subject, body });
+        await sendAndLog({ bookingId: b.id, emailType: "feedback", recipient: b.email, subject, body, html });
         await pool.query("UPDATE bookings SET feedback_sent_at = now() WHERE id = $1", [b.id]);
     }
 }

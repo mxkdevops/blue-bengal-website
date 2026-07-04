@@ -247,6 +247,14 @@ async function loadEmailLog() {
     state.emailLog = data.emailLog;
 }
 
+const EMAIL_TYPE_LABELS = {
+    reminder: "Reminder",
+    feedback: "Feedback request",
+    voucher: "Voucher",
+    confirmation: "Confirmation",
+    cancellation: "Cancellation",
+};
+
 function renderEmailLog() {
     els.emailLogList.innerHTML = state.emailLog.length
         ? state.emailLog
@@ -254,7 +262,7 @@ function renderEmailLog() {
                   (e) => `
             <div class="email-log-item">
                 <div class="notification-text">
-                    <strong>${e.email_type === "reminder" ? "Reminder" : "Feedback request"}</strong> to ${escapeHtml(e.recipient)}
+                    <strong>${EMAIL_TYPE_LABELS[e.email_type] || e.email_type}</strong> to ${escapeHtml(e.recipient)}
                     <span class="meta">${escapeHtml(e.subject)} ${e.booking_code ? `· ${e.booking_code}` : ""} · ${new Date(e.created_at).toLocaleString("en-GB")}</span>
                 </div>
                 <span class="email-status email-status-${e.status}">${e.status}</span>

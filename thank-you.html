@@ -31,7 +31,8 @@
         <p class="confirmation-note">✉️ info@bluebengal-carshalton.co.uk</p>
         <p class="confirmation-note">📞 020 8647 0286</p>
 
-        <a href="index.html" class="btn btn-gold" style="margin-top: 18px;">🏠 Go to Home Page</a>
+        <a href="manage-booking.html" id="manageBookingLink" class="btn btn-gold" style="margin-top: 18px;">Manage Your Booking</a>
+        <a href="index.html" class="btn" style="margin-top: 10px; background:transparent; border:2px solid var(--cream-alt); color:var(--text-muted);">🏠 Go to Home Page</a>
     </div>
 </div>
 
@@ -47,6 +48,8 @@
             if (bookingDetails.confirmationMessage) {
                 document.getElementById("confirmationMessage").textContent = bookingDetails.confirmationMessage;
             }
+            document.getElementById("manageBookingLink").href =
+                "manage-booking.html?code=" + encodeURIComponent(bookingDetails.bookingId);
         } else {
             document.getElementById("bookingDetails").innerHTML = "<p>Error loading booking details.</p>";
         }
