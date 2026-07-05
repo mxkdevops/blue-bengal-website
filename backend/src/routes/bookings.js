@@ -4,6 +4,7 @@ const { validateBooking } = require("../utils/validateBooking");
 const { generateBookingCode } = require("../utils/bookingCode");
 const { checkAvailability } = require("../utils/checkAvailability");
 const { sendBookingConfirmationEmail } = require("../utils/sendConfirmationEmail");
+const { sendBookingUpdatedEmail } = require("../utils/sendBookingUpdatedEmail");
 const { sendAdminNotificationEmail, generateActionToken } = require("../utils/sendAdminNotificationEmail");
 const { sendEmail } = require("../utils/emailSender");
 const { formatDate, formatTime } = require("../utils/formatters");
@@ -313,33 +314,9 @@ router.patch("/booking/:code", async (req, res, next) => {
             },
         });
 
-        const manageUrl = frontendUrl(`/manage-booking.html?code=${encodeURIComponent(updated.booking_code)}`);
-        const subject = `Your booking has been updated — Blue Bengal`;
-        const body = `Hi ${booking.name},\n\nYour booking has been updated:\n` +
-            `${formatDate(updated.booking_date)} at ${formatTime(updated.booking_time.slice(0, 5))}, ${updated.guests} guests (${updated.booking_code}).`;
-        const html = emailLayout({
-            heading: "Your booking has been updated",
-            bodyHtml: `
-                <p style="margin:0 0 6px;">Hi ${booking.name},</p>
-                <p style="margin:0 0 16px; line-height:1.6;">Here are your updated booking details:</p>
-                ${detailsTable([
-                    ["Booking Code", updated.booking_code],
-                    ["Date", formatDate(updated.booking_date)],
-                    ["Time", formatTime(updated.booking_time.slice(0, 5))],
-                    ["Guests", updated.guests],
-                ])}
-                ${button("Manage Your Booking", manageUrl)}
-            `,
-        });
-        sendEmail({ to: booking.email, subject, body, html })
-            .then(({ status }) =>
-                pool.query(
-                    `INSERT INTO email_log (booking_id, email_type, recipient, subject, body, status)
-                     VALUES ($1, 'confirmation', $2, $3, $4, $5)`,
-                    [updated.id, booking.email, subject, body, status]
-                )
-            )
-            .catch((err) => console.error("Failed to send booking-updated email:", err));
+        sendBookingUpdatedEmail(updated.id).catch((err) =>
+            console.error("Failed to send booking-updated email:", err)
+        );
     } catch (err) {
         await client.query("ROLLBACK");
         next(err);

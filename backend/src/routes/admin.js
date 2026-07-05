@@ -3,6 +3,7 @@ const pool = require("../db/pool");
 const adminAuth = require("../middleware/adminAuth");
 const { checkAvailability } = require("../utils/checkAvailability");
 const { sendBookingConfirmationEmail } = require("../utils/sendConfirmationEmail");
+const { sendBookingUpdatedEmail } = require("../utils/sendBookingUpdatedEmail");
 
 const router = express.Router();
 router.use(adminAuth);
@@ -147,6 +148,10 @@ router.patch("/bookings/:id", async (req, res, next) => {
         );
 
         res.json({ success: true, booking: result.rows[0] });
+
+        sendBookingUpdatedEmail(result.rows[0].id).catch((err) =>
+            console.error("Failed to send booking-updated email:", err)
+        );
     } catch (err) {
         next(err);
     } finally {
