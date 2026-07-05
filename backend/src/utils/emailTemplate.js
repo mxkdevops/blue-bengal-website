@@ -40,6 +40,7 @@ function emailLayout({ heading, bodyHtml }) {
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px; background:#ffffff; border-radius:12px; overflow:hidden; border-top:5px solid ${BRAND.gold};">
         <tr>
           <td style="background:${BRAND.maroon}; padding:28px; text-align:center;">
+            <img src="${frontendUrl("/logo.JPG")}" alt="Blue Bengal" width="64" height="64" style="width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid ${BRAND.goldLight}; margin-bottom:12px;">
             <div style="color:#ffffff; font-size:24px; font-weight:bold; letter-spacing:0.5px;">Blue Bengal</div>
             <div style="color:${BRAND.goldLight}; font-size:12px; letter-spacing:3px; text-transform:uppercase; margin-top:6px;">Carshalton</div>
           </td>
