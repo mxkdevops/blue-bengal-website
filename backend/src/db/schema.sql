@@ -64,7 +64,11 @@ ALTER TABLE settings ADD COLUMN IF NOT EXISTS reminder_enabled BOOLEAN NOT NULL 
 ALTER TABLE settings ADD COLUMN IF NOT EXISTS reminder_hours_before INTEGER NOT NULL DEFAULT 24;
 ALTER TABLE settings ADD COLUMN IF NOT EXISTS feedback_enabled BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE settings ADD COLUMN IF NOT EXISTS feedback_hours_after INTEGER NOT NULL DEFAULT 3;
-ALTER TABLE settings ADD COLUMN IF NOT EXISTS feedback_link TEXT NOT NULL DEFAULT 'https://www.facebook.com/bluebengal';
+ALTER TABLE settings ADD COLUMN IF NOT EXISTS feedback_link TEXT NOT NULL DEFAULT 'https://www.google.com/maps/search/?api=1&query=Blue+Bengal+Restaurant%2C+140-142+High+Street%2C+Carshalton+SM5+3AE';
+ALTER TABLE settings ALTER COLUMN feedback_link SET DEFAULT 'https://www.google.com/maps/search/?api=1&query=Blue+Bengal+Restaurant%2C+140-142+High+Street%2C+Carshalton+SM5+3AE';
+-- Existing rows still on the old Facebook default get switched to the Google review link too.
+UPDATE settings SET feedback_link = 'https://www.google.com/maps/search/?api=1&query=Blue+Bengal+Restaurant%2C+140-142+High+Street%2C+Carshalton+SM5+3AE'
+    WHERE feedback_link = 'https://www.facebook.com/bluebengal';
 
 -- Total covers (guests) allowed across all bookings in a single time slot. NULL = unlimited.
 ALTER TABLE settings ADD COLUMN IF NOT EXISTS max_covers_per_slot INTEGER;
