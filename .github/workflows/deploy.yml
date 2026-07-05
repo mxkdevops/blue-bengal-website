@@ -24,6 +24,7 @@ jobs:
         run: |
           echo "Starting S3 sync..."
           aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --delete \
+            --cache-control "no-cache, must-revalidate" \
             --exclude '.git/*' \
             --exclude '.github/*' \
             --exclude '*.md' \
