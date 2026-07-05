@@ -11,6 +11,9 @@
 </head>
 <body>
 
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0"></script>
+
     <!-- Site Header / Nav -->
     <header class="site-header">
         <nav class="nav">
@@ -292,6 +295,29 @@
             <div class="gallery-controls">
                 <button id="galleryPrev" aria-label="Previous photo">‹</button>
                 <button id="galleryNext" aria-label="Next photo">›</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest from Facebook -->
+    <section id="social" class="section">
+        <div class="container">
+            <h2 class="section-title">Latest from Facebook</h2>
+            <p class="section-subtitle">See what's happening at Blue Bengal — follow us for updates and offers.</p>
+            <div class="social-feed-wrap">
+                <div class="fb-page"
+                     data-href="https://www.facebook.com/bluebengal"
+                     data-tabs="timeline"
+                     data-width="500"
+                     data-height="700"
+                     data-small-header="false"
+                     data-adapt-container-width="true"
+                     data-hide-cover="false"
+                     data-show-facepile="false">
+                    <blockquote cite="https://www.facebook.com/bluebengal" class="fb-xfbml-parse-ignore">
+                        <a href="https://www.facebook.com/bluebengal">Blue Bengal</a>
+                    </blockquote>
+                </div>
             </div>
         </div>
     </section>

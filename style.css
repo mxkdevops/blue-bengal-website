@@ -495,6 +495,22 @@ img {
     color: #fff;
 }
 
+/* Latest from Facebook */
+.social-feed-wrap {
+    display: flex;
+    justify-content: center;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+.fb-page,
+.fb-page iframe {
+    width: 100% !important;
+}
+
 /* Contact */
 .contact-list {
     display: flex;
