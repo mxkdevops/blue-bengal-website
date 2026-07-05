@@ -49,6 +49,12 @@ async function checkAvailability(client, settings, date, time, guests = null, ex
     }
 
     if (guests !== null && settings.max_covers_per_slot) {
+        // Serialize concurrent booking attempts for this exact slot so the
+        // capacity check-then-insert can't race (two simultaneous requests
+        // both reading "room available" before either one commits). Released
+        // automatically on the caller's COMMIT/ROLLBACK.
+        await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [`${date}T${time}`]);
+
         const params = [date, time];
         let excludeClause = "";
         if (excludeBookingId) {
