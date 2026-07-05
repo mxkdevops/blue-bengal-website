@@ -1,35 +1,147 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Populate time slots (5:30 PM - 9:00 PM, every 30 minutes)
+// localhost -> local backend, the test subdomain -> the test backend, anything else -> production
+const API_BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ? window.location.origin
+    : window.location.hostname.startsWith("test.")
+    ? "https://api-test.bluebengal-carshalton.co.uk"
+    : "https://api.bluebengal-carshalton.co.uk";
+
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+document.addEventListener("DOMContentLoaded", async function () {
+    let dateInput = document.getElementById("date");
     let timeSelect = document.getElementById("time");
-    let startTime = 17.5; // 5:30 PM
-    let endTime = 21.0; // 9:00 PM
+    let guestsSelect = document.getElementById("guests");
+    let dateError = document.getElementById("dateError");
+    let submitBtn = document.querySelector("#bookingForm button[type='submit']");
 
-    while (startTime <= endTime) {
-        let hour = Math.floor(startTime);
-        let minutes = startTime % 1 === 0 ? "00" : "30";
-        let ampm = hour >= 12 ? "PM" : "AM";
-        let displayHour = hour > 12 ? hour - 12 : hour;
+    // Restrict past dates in date picker. Avoid toISOString() here — it
+    // converts to UTC, which can shift the calendar date during BST.
+    let now = new Date();
+    let today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    dateInput.setAttribute("min", today);
 
-        let option = document.createElement("option");
-        option.value = `${hour}:${minutes}`;
-        option.textContent = `${displayHour}:${minutes} ${ampm}`;
-        timeSelect.appendChild(option);
+    // Sensible fallback in case the settings request fails
+    let openingTime = "17:30";
+    let closingTime = "21:00";
+    let minGuests = 1;
+    let maxGuests = 20;
+    let slotIntervalMinutes = 30;
+    let closedWeekdays = [];
+    let minAdvanceNoticeMinutes = 0;
 
-        startTime += 0.5;
+    try {
+        const response = await fetch(`${API_BASE_URL}/booking-settings`);
+        const result = await response.json();
+        if (result.success) {
+            ({
+                openingTime, closingTime,
+                minGuestsPerBooking: minGuests, maxGuestsPerBooking: maxGuests,
+                slotIntervalMinutes, closedWeekdays, minAdvanceNoticeMinutes,
+            } = result.settings);
+        }
+    } catch (error) {
+        console.error("Could not load booking settings, using defaults.", error);
     }
 
-    // Populate guests dropdown (1-20)
-    let guestsSelect = document.getElementById("guests");
-    for (let i = 1; i <= 20; i++) {
+    // Populate guests dropdown (this doesn't depend on the chosen date)
+    for (let i = minGuests; i <= maxGuests; i++) {
         let option = document.createElement("option");
         option.value = i;
         option.textContent = i;
         guestsSelect.appendChild(option);
     }
 
-    // Restrict past dates in date picker
-    let today = new Date().toISOString().split("T")[0];
-    document.getElementById("date").setAttribute("min", today);
+    // Rebuilds the time dropdown for a given date, marking times that are
+    // blocked by the restaurant or too soon (minimum advance notice) as
+    // disabled with a "(Not available)" label, instead of only finding out
+    // after the guest tries to submit.
+    async function populateTimeOptions(selectedDate) {
+        const previousValue = timeSelect.value;
+        timeSelect.innerHTML = "";
+
+        let blockedRanges = [];
+        let wholeDayBlocked = false;
+        if (selectedDate) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/availability?date=${encodeURIComponent(selectedDate)}`);
+                const data = await res.json();
+                if (data.success) {
+                    blockedRanges = data.blockedRanges;
+                    wholeDayBlocked = data.wholeDayBlocked;
+                }
+            } catch (error) {
+                console.error("Could not load availability for this date.", error);
+            }
+        }
+
+        const [openHour, openMinute] = openingTime.split(":").map(Number);
+        const [closeHour, closeMinute] = closingTime.split(":").map(Number);
+        let minutes = openHour * 60 + openMinute;
+        const closeMinutes = closeHour * 60 + closeMinute;
+
+        const nowPlusNotice = selectedDate ? new Date(Date.now() + minAdvanceNoticeMinutes * 60000) : null;
+
+        while (minutes <= closeMinutes) {
+            let hour = Math.floor(minutes / 60);
+            let mins = minutes % 60;
+            let ampm = hour >= 12 ? "PM" : "AM";
+            let displayHour = hour % 12 === 0 ? 12 : hour % 12;
+            let value = `${String(hour).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+
+            let isUnavailable = false;
+            if (selectedDate) {
+                if (wholeDayBlocked) {
+                    isUnavailable = true;
+                } else if (blockedRanges.some((r) => value >= r.startTime && value < r.endTime)) {
+                    isUnavailable = true;
+                } else if (minAdvanceNoticeMinutes > 0) {
+                    const [y, m, d] = selectedDate.split("-").map(Number);
+                    const slotDateTime = new Date(y, m - 1, d, hour, mins);
+                    if (slotDateTime < nowPlusNotice) isUnavailable = true;
+                }
+            }
+
+            let option = document.createElement("option");
+            option.value = value;
+            option.textContent = isUnavailable
+                ? `${displayHour}:${String(mins).padStart(2, "0")} ${ampm} (Not available)`
+                : `${displayHour}:${String(mins).padStart(2, "0")} ${ampm}`;
+            option.disabled = isUnavailable;
+            timeSelect.appendChild(option);
+
+            minutes += slotIntervalMinutes;
+        }
+
+        // Keep the previously chosen time selected if it's still on the list and available
+        if (previousValue) {
+            const stillValid = [...timeSelect.options].find((o) => o.value === previousValue && !o.disabled);
+            if (stillValid) timeSelect.value = previousValue;
+        }
+    }
+
+    // Warn if the chosen date falls on a day we're closed, and refresh time
+    // availability for the newly selected date either way.
+    async function handleDateChange() {
+        if (!dateInput.value) return;
+        const [y, m, d] = dateInput.value.split("-").map(Number);
+        const weekday = new Date(y, m - 1, d).getDay();
+        const isClosed = closedWeekdays.includes(weekday);
+
+        dateError.hidden = !isClosed;
+        dateError.textContent = isClosed ? `We're closed on ${WEEKDAY_NAMES[weekday]}s. Please choose another date.` : "";
+        timeSelect.disabled = isClosed;
+        submitBtn.disabled = isClosed;
+
+        if (!isClosed) {
+            await populateTimeOptions(dateInput.value);
+        }
+    }
+
+    // Default to today so guests don't have to pick a date just to see times
+    dateInput.value = today;
+    await handleDateChange();
+
+    dateInput.addEventListener("change", handleDateChange);
 });
 
 // Handle Booking Form Submission
@@ -42,6 +154,8 @@ document.getElementById("bookingForm").addEventListener("submit", async function
     let date = document.getElementById("date").value;
     let time = document.getElementById("time").value;
     let guests = document.getElementById("guests").value;
+    let notes = document.getElementById("notes").value.trim();
+    let marketingConsent = document.getElementById("marketingConsent").checked;
 
     if (!name || !email || !phone || !date || !time || !guests) {
         alert("Please fill in all fields.");
@@ -49,10 +163,10 @@ document.getElementById("bookingForm").addEventListener("submit", async function
     }
 
     try {
-        let response = await fetch("https://api.bluebengal-carshalton.co.uk/create-booking", {
+        let response = await fetch(`${API_BASE_URL}/create-booking`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, phone, date, time, guests, status: "Pending" })
+            body: JSON.stringify({ name, email, phone, date, time, guests, notes, marketingConsent })
         });
 
         let result = await response.json();
@@ -63,7 +177,8 @@ document.getElementById("bookingForm").addEventListener("submit", async function
                 date: date,
                 time: time,
                 guests: guests,
-                phone: phone
+                phone: phone,
+                confirmationMessage: result.booking.confirmationMessage
             }));
 
             // Redirect to Thank You page

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unsubscribe — Blue Bengal Carshalton</title>
+    <link rel="icon" type="image/png" href="img/fevicon.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <nav class="nav">
+            <a href="index.html" class="nav-brand">
+                <img src="logo.JPG" alt="Blue Bengal logo">
+                <span>Blue Bengal</span>
+            </a>
+            <div class="nav-links" style="display:flex;">
+                <a href="booking.html" class="btn btn-gold">Reserve a Table</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="booking-wrap" style="margin-top:60px;">
+        <div class="booking-card">
+            <h2>Unsubscribe</h2>
+            <p class="section-subtitle" id="subtitle">You can unsubscribe from promotional emails below.</p>
+            <div id="message" style="display:none;"></div>
+            <form id="unsubForm">
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" required>
+                </div>
+                <button type="submit" class="btn btn-gold btn-block" id="unsubBtn">Unsubscribe</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 Blue Bengal Carshalton. All Rights Reserved.</p>
+        <p><a href="privacy-policy.html">Privacy Policy</a></p>
+    </footer>
+
+    <script>
+        const API_BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+            ? window.location.origin
+            : window.location.hostname.startsWith("test.")
+            ? "https://api-test.bluebengal-carshalton.co.uk"
+            : "https://api.bluebengal-carshalton.co.uk";
+
+        const params = new URLSearchParams(window.location.search);
+        const prefillEmail = params.get("email");
+        if (prefillEmail) document.getElementById("email").value = prefillEmail;
+
+        document.getElementById("unsubForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value.trim();
+            const btn = document.getElementById("unsubBtn");
+            btn.disabled = true;
+            btn.textContent = "Please wait...";
+
+            try {
+                await fetch(`${API_BASE_URL}/unsubscribe`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email }),
+                });
+                document.getElementById("unsubForm").style.display = "none";
+                document.getElementById("subtitle").style.display = "none";
+                const msg = document.getElementById("message");
+                msg.style.display = "block";
+                msg.innerHTML = `<p>You've been unsubscribed from promotional emails. You'll still receive booking confirmations, reminders, and feedback requests for any tables you book, since those aren't marketing.</p>`;
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = "Unsubscribe";
+                alert("Something went wrong. Please try again or email info@bluebengal-carshalton.co.uk.");
+            }
+        });
+    </script>
+</body>
+</html>

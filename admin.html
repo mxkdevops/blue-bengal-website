@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Blue Bengal Carshalton</title>
+    <link rel="icon" type="image/png" href="img/fevicon.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+    <!-- Login gate -->
+    <div class="admin-login-wrap" id="loginScreen">
+        <div class="admin-login-card">
+            <img src="logo.JPG" alt="Blue Bengal logo">
+            <h2>Admin Sign In</h2>
+            <p class="section-subtitle" style="margin-bottom:18px;">Enter your admin key to manage bookings.</p>
+            <div id="loginError" class="admin-error" hidden></div>
+            <form id="loginForm">
+                <div class="field">
+                    <label for="adminKeyInput">Admin Key</label>
+                    <input type="password" id="adminKeyInput" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-gold btn-block">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin app -->
+    <div class="admin-app" id="adminApp" hidden>
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="logo.JPG" alt="Blue Bengal logo">
+                <div>
+                    <span>Blue Bengal</span>
+                    <small>Admin Panel</small>
+                </div>
+            </div>
+            <button class="admin-nav-toggle" id="adminNavToggle" aria-label="Toggle menu" aria-expanded="false">
+                <span id="activeTabLabel">Overview</span>
+                <span class="admin-nav-toggle-icon">☰</span>
+            </button>
+            <nav class="admin-nav" id="adminNav">
+                <button data-tab="overview" class="active">Overview</button>
+                <button data-tab="bookings">Bookings</button>
+                <button data-tab="customers">Customers</button>
+                <button data-tab="vouchers">Vouchers</button>
+                <button data-tab="settings">Settings</button>
+                <button data-tab="notifications">
+                    Notifications
+                    <span class="admin-badge" id="notifBadge" hidden>0</span>
+                </button>
+            </nav>
+            <div class="admin-logout">
+                <button id="logoutBtn">Log Out</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <h1 id="pageTitle">Overview</h1>
+                <div class="admin-topbar-meta">
+                    <span id="todayDate"></span>
+                    <button class="icon-btn" id="refreshBtn">⟳ Refresh</button>
+                </div>
+            </div>
+
+            <!-- Overview tab -->
+            <section class="admin-tab" id="tab-overview">
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotal">0</div>
+                        <div class="stat-label">Total Bookings</div>
+                    </div>
+                    <div class="stat-card alert">
+                        <div class="stat-value" id="statPending">0</div>
+                        <div class="stat-label">Pending Review</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statConfirmed">0</div>
+                        <div class="stat-label">Confirmed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statUpcoming">0</div>
+                        <div class="stat-label">Upcoming (7 days)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statRepeat">0</div>
+                        <div class="stat-label">Repeat Customers</div>
+                    </div>
+                </div>
+
+                <div class="panel" id="needsAttentionPanel" hidden>
+                    <h2>⚠️ Needs Attention</h2>
+                    <div id="needsAttentionList"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>Upcoming Bookings</h2>
+                    <div class="upcoming-list" id="upcomingList">
+                        <p class="panel-empty">No upcoming bookings.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bookings tab -->
+            <section class="admin-tab" id="tab-bookings" hidden>
+                <div class="date-nav">
+                    <button class="icon-btn" id="datePrevBtn" aria-label="Previous day">‹</button>
+                    <div class="date-nav-label" id="dateNavLabel">Today</div>
+                    <button class="icon-btn" id="dateNextBtn" aria-label="Next day">›</button>
+                    <label class="emergency-toggle">
+                        <input type="checkbox" id="emergencyBlockToggle">
+                        <span>🚨 Block all online bookings for this day</span>
+                    </label>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="quick-filters" id="quickFilters">
+                        <button class="chip active" data-quick="upcoming">Upcoming</button>
+                        <button class="chip" data-quick="today">Today</button>
+                        <button class="chip" data-quick="tomorrow">Tomorrow</button>
+                        <button class="chip" data-quick="week">This Week</button>
+                        <button class="chip" data-quick="all">All</button>
+                    </div>
+                    <select id="statusFilter">
+                        <option value="">All statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <input type="date" id="dateFilter">
+                    <input type="search" id="searchFilter" placeholder="Search name, email or phone…">
+                    <div class="quick-filters" id="viewToggle">
+                        <button class="chip active" data-view="cards">▤ Cards</button>
+                        <button class="chip" data-view="list">☰ List</button>
+                    </div>
+                </div>
+
+                <div class="booking-list-wrap" id="bookingsListWrap" hidden></div>
+
+                <div class="table-wrap" id="bookingsCardsWrap">
+                    <table class="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Guests</th>
+                                <th>Visits</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Customers tab -->
+            <section class="admin-tab" id="tab-customers" hidden>
+                <div class="filters-bar">
+                    <input type="search" id="customerSearch" placeholder="Search name, email or phone…">
+                </div>
+                <div class="table-wrap">
+                    <table class="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Bookings</th>
+                                <th>Last Visit</th>
+                                <th>Next Upcoming</th>
+                                <th>Marketing</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Vouchers tab -->
+            <section class="admin-tab" id="tab-vouchers" hidden>
+                <div class="panel">
+                    <h2>Create Voucher</h2>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="voucherCodeInput">Code</label>
+                            <input type="text" id="voucherCodeInput" placeholder="e.g. WELCOME10">
+                        </div>
+                        <div class="field">
+                            <label>&nbsp;</label>
+                            <button type="button" class="icon-btn" id="generateVoucherCodeBtn" style="width:100%;">Generate Code</button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="voucherDescriptionInput">Description</label>
+                        <input type="text" id="voucherDescriptionInput" placeholder="e.g. 10% off for our first 10 customers">
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="voucherTypeInput">Discount Type</label>
+                            <select id="voucherTypeInput">
+                                <option value="percentage">Percentage (%)</option>
+                                <option value="fixed">Fixed Amount (£)</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="voucherValueInput">Discount Value</label>
+                            <input type="number" min="0" step="0.01" id="voucherValueInput">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="voucherMaxInput">Max Redemptions</label>
+                            <input type="number" min="1" id="voucherMaxInput" placeholder="Unlimited">
+                        </div>
+                        <div class="field">
+                            <label for="voucherExpiryInput">Expires On</label>
+                            <input type="date" id="voucherExpiryInput">
+                        </div>
+                    </div>
+                    <div id="voucherFormError" class="admin-error" hidden></div>
+                    <button class="btn btn-gold" id="createVoucherBtn">Create Voucher</button>
+                </div>
+
+                <div class="panel">
+                    <h2>All Vouchers</h2>
+                    <div class="table-wrap">
+                        <table class="bookings-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>Discount</th>
+                                    <th>Redemptions</th>
+                                    <th>Expires</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vouchersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Send Voucher to Customers</h2>
+                    <p class="section-subtitle" style="margin-bottom:16px;">
+                        Email sending isn't fully wired up yet (no provider configured) — sends are logged in the
+                        Notifications tab's Email Log so you can verify who it would go to.
+                    </p>
+                    <div class="filters-bar">
+                        <select id="sendVoucherSelect" style="min-width:220px;"></select>
+                        <button type="button" class="chip" id="selectRepeatCustomersBtn">Select Repeat Customers</button>
+                        <button type="button" class="chip" id="selectAllCustomersBtn">Select All</button>
+                        <button type="button" class="chip" id="clearCustomerSelectionBtn">Clear</button>
+                    </div>
+                    <div id="voucherRecipientsList" style="max-height:260px; overflow-y:auto; margin-bottom:16px;"></div>
+                    <button class="btn btn-gold" id="sendVoucherBtn">Send to Selected Customers</button>
+                    <span class="save-status" id="voucherSendStatus">Sent ✓</span>
+                </div>
+            </section>
+
+            <!-- Settings tab -->
+            <section class="admin-tab" id="tab-settings" hidden>
+                <div class="panel">
+                    <h2>Booking Settings</h2>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Auto-accept bookings</div>
+                            <div class="settings-desc">When on, new bookings are confirmed automatically. When off, they're marked pending for manual review.</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoAcceptToggle">
+                            <span class="switch-track"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Opening time</div>
+                            <div class="settings-desc">Earliest time guests can book.</div>
+                        </div>
+                        <input type="time" class="settings-number" id="openingTimeInput" style="width:130px;">
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Closing time</div>
+                            <div class="settings-desc">Latest time guests can book.</div>
+                        </div>
+                        <input type="time" class="settings-number" id="closingTimeInput" style="width:130px;">
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Booking time slots</div>
+                            <div class="settings-desc">How far apart the bookable times are in the guest booking form.</div>
+                        </div>
+                        <select class="settings-number" id="slotIntervalInput" style="width:150px;">
+                            <option value="15">Every 15 minutes</option>
+                            <option value="30">Every 30 minutes</option>
+                            <option value="45">Every 45 minutes</option>
+                            <option value="60">Every 60 minutes</option>
+                        </select>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Minimum guests per booking</div>
+                            <div class="settings-desc">Smallest party size guests can book online.</div>
+                        </div>
+                        <input type="number" min="1" max="50" class="settings-number" id="minGuestsInput">
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Maximum guests per booking</div>
+                            <div class="settings-desc">Largest party size guests can book online before being asked to call.</div>
+                        </div>
+                        <input type="number" min="1" max="50" class="settings-number" id="maxGuestsInput">
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Total capacity per time slot</div>
+                            <div class="settings-desc">Max total guests across all bookings at any single time. Leave blank for unlimited.</div>
+                        </div>
+                        <input type="number" min="1" class="settings-number" id="maxCoversInput" placeholder="Unlimited" style="width:130px;">
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Minimum advance notice</div>
+                            <div class="settings-desc">How far ahead of time a booking must be made.</div>
+                        </div>
+                        <select class="settings-number" id="minAdvanceNoticeInput" style="width:170px;">
+                            <option value="0">No minimum</option>
+                            <option value="30">30 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="120">2 hours</option>
+                            <option value="240">4 hours</option>
+                            <option value="1440">1 day</option>
+                        </select>
+                    </div>
+                    <div class="settings-row" style="flex-direction:column; align-items:stretch;">
+                        <div style="margin-bottom:10px;">
+                            <div class="settings-label">Weekly closed days</div>
+                            <div class="settings-desc">Days that are always closed to booking, every week (e.g. closed every Tuesday).</div>
+                        </div>
+                        <div class="quick-filters" id="closedWeekdaysGroup">
+                            <button type="button" class="chip" data-weekday="0">Sun</button>
+                            <button type="button" class="chip" data-weekday="1">Mon</button>
+                            <button type="button" class="chip" data-weekday="2">Tue</button>
+                            <button type="button" class="chip" data-weekday="3">Wed</button>
+                            <button type="button" class="chip" data-weekday="4">Thu</button>
+                            <button type="button" class="chip" data-weekday="5">Fri</button>
+                            <button type="button" class="chip" data-weekday="6">Sat</button>
+                        </div>
+                    </div>
+                    <div class="settings-row" style="flex-direction:column; align-items:stretch;">
+                        <div style="margin-bottom:10px;">
+                            <div class="settings-label">Confirmation message</div>
+                            <div class="settings-desc">Shown to guests on the confirmation page after they book.</div>
+                        </div>
+                        <textarea id="confirmationMessageInput" rows="3" style="width:100%; padding:12px 14px; border:1.5px solid var(--cream-alt); border-radius:8px; font-family:inherit; font-size:0.95rem;"></textarea>
+                    </div>
+                    <div class="settings-save-row">
+                        <button class="btn btn-gold" id="saveSettingsBtn">Save Settings</button>
+                        <span class="save-status" id="saveStatus">Saved ✓</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>New Booking Notifications</h2>
+                    <p class="section-subtitle" style="margin-bottom:16px;">
+                        Get an email whenever a new booking comes in, with a one-click link to confirm or reject it —
+                        no need to log into the admin panel first.
+                    </p>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Email me about new bookings</div>
+                            <div class="settings-desc">Sent for every new booking, whether auto-confirmed or pending review.</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="adminNotificationEnabledToggle">
+                            <span class="switch-track"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Notification email address</div>
+                            <div class="settings-desc">Where these emails should go — can be different from your public contact email.</div>
+                        </div>
+                        <input type="email" class="settings-number" id="adminNotificationEmailInput" placeholder="you@example.com" style="width:220px;">
+                    </div>
+                    <div class="settings-save-row">
+                        <button class="btn btn-gold" id="saveAdminNotificationBtn">Save</button>
+                        <span class="save-status" id="adminNotificationSaveStatus">Saved ✓</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Reminders &amp; Feedback Emails</h2>
+                    <p class="section-subtitle" style="margin-bottom:16px;">
+                        Email sending isn't fully wired up yet (no provider configured) — triggered emails are logged in the
+                        Notifications tab so you can verify timing before real sending is switched on.
+                    </p>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Send booking reminders</div>
+                            <div class="settings-desc">Reminds guests of their upcoming booking.</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="reminderEnabledToggle">
+                            <span class="switch-track"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Send reminder</div>
+                            <div class="settings-desc">How long before the booking to send it.</div>
+                        </div>
+                        <select class="settings-number" id="reminderHoursInput" style="width:170px;">
+                            <option value="1">1 hour before</option>
+                            <option value="2">2 hours before</option>
+                            <option value="4">4 hours before</option>
+                            <option value="12">12 hours before</option>
+                            <option value="24">1 day before</option>
+                            <option value="48">2 days before</option>
+                        </select>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Send feedback request</div>
+                            <div class="settings-desc">Asks guests for feedback after their visit.</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="feedbackEnabledToggle">
+                            <span class="switch-track"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Send feedback request</div>
+                            <div class="settings-desc">How long after the booking time to send it.</div>
+                        </div>
+                        <select class="settings-number" id="feedbackHoursInput" style="width:170px;">
+                            <option value="1">1 hour after</option>
+                            <option value="2">2 hours after</option>
+                            <option value="3">3 hours after</option>
+                            <option value="6">6 hours after</option>
+                            <option value="12">12 hours after</option>
+                            <option value="24">1 day after</option>
+                        </select>
+                    </div>
+                    <div class="settings-row" style="flex-direction:column; align-items:stretch;">
+                        <div style="margin-bottom:10px;">
+                            <div class="settings-label">Feedback link</div>
+                            <div class="settings-desc">Where the feedback email points guests — your Facebook page, Google review link, etc.</div>
+                        </div>
+                        <input type="url" id="feedbackLinkInput" style="width:100%; padding:12px 14px; border:1.5px solid var(--cream-alt); border-radius:8px; font-family:inherit; font-size:0.95rem;">
+                    </div>
+                    <div class="settings-save-row">
+                        <button class="btn btn-gold" id="saveReminderSettingsBtn">Save Reminder Settings</button>
+                        <span class="save-status" id="reminderSaveStatus">Saved ✓</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Blocked Time Slots</h2>
+                    <p class="section-subtitle" style="margin-bottom:16px;">Close specific dates/times to booking — for private events, holidays, or maintenance.</p>
+                    <div class="filters-bar">
+                        <input type="date" id="blockDateInput">
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.9rem; font-weight:600;">
+                            <input type="checkbox" id="blockWholeDayInput"> Whole day (e.g. Christmas Day)
+                        </label>
+                        <input type="time" id="blockStartInput">
+                        <input type="time" id="blockEndInput">
+                        <input type="text" id="blockReasonInput" placeholder="Reason (optional)" style="min-width:180px;">
+                        <button class="btn btn-gold" id="addBlockedSlotBtn">Block</button>
+                    </div>
+                    <div id="blockedSlotsList"></div>
+                </div>
+            </section>
+
+            <!-- Notifications tab -->
+            <section class="admin-tab" id="tab-notifications" hidden>
+                <div class="panel">
+                    <h2>Activity &amp; Alerts</h2>
+                    <p class="section-subtitle" style="margin-bottom:16px;">
+                        These are in-app alerts generated from booking activity — email/SMS notifications to guests aren't wired up yet.
+                    </p>
+                    <div id="notificationsList"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>Automated Email Log</h2>
+                    <p class="section-subtitle" style="margin-bottom:16px;">
+                        Reminder and feedback emails triggered by the scheduler. Status "stub" means it was logged but not
+                        actually delivered (no email provider configured yet).
+                    </p>
+                    <div id="emailLogList"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Booking detail modal -->
+    <div class="modal-overlay" id="bookingModal" hidden>
+        <div class="modal-card" id="bookingModalContent"></div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

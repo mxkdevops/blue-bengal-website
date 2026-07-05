@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Your Booking — Blue Bengal Carshalton</title>
+    <link rel="icon" type="image/png" href="img/fevicon.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <nav class="nav">
+            <a href="index.html" class="nav-brand">
+                <img src="logo.JPG" alt="Blue Bengal logo">
+                <span>Blue Bengal</span>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle menu" id="navToggle">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html#about-us">About Us</a>
+                <a href="index.html#menu">Menu</a>
+                <a href="index.html#hours">Opening Hours</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="booking.html" class="btn btn-gold">Reserve a Table</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero hero-small">
+        <img src="img/hero-image.jpg" alt="Blue Bengal restaurant interior">
+        <div class="hero-content">
+            <span class="eyebrow">Blue Bengal Carshalton</span>
+            <h1>Manage Your Booking</h1>
+        </div>
+    </section>
+
+    <div class="booking-wrap">
+        <!-- Lookup form -->
+        <div class="booking-card" id="lookupCard">
+            <h2>Find Your Booking</h2>
+            <p class="section-subtitle">Enter your booking code and the email you booked with.</p>
+            <div id="lookupError" class="field-error" hidden></div>
+            <form id="lookupForm">
+                <div class="field">
+                    <label for="lookupCode">Booking Code</label>
+                    <input type="text" id="lookupCode" placeholder="e.g. BB-AB12CD" required>
+                </div>
+                <div class="field">
+                    <label for="lookupEmail">Email</label>
+                    <input type="email" id="lookupEmail" required>
+                </div>
+                <button type="submit" class="btn btn-gold btn-block">Find Booking</button>
+            </form>
+        </div>
+
+        <!-- Booking details / edit form -->
+        <div class="booking-card" id="detailsCard" hidden>
+            <h2>Your Booking</h2>
+            <div class="confirmation-details" id="statusBanner"></div>
+            <a href="#" id="addToCalendarLink" target="_blank" rel="noopener" class="btn btn-gold btn-block" style="margin-bottom:20px;">📅 Add to Google Calendar</a>
+
+            <form id="editForm">
+                <div class="field-row">
+                    <div class="field">
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate" required>
+                    </div>
+                    <div class="field">
+                        <label for="editTime">Time</label>
+                        <select id="editTime" required></select>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="editGuests">Number of Guests</label>
+                    <select id="editGuests" required></select>
+                </div>
+                <div id="editError" class="field-error" hidden></div>
+                <button type="submit" class="btn btn-gold btn-block" id="saveChangesBtn">Save Changes</button>
+            </form>
+
+            <button type="button" class="btn" id="cancelBookingBtn" style="width:100%; margin-top:12px; background:transparent; border:2px solid #a3242f; color:#a3242f;">Cancel This Booking</button>
+            <button type="button" class="btn" id="searchAgainBtn" style="width:100%; margin-top:12px; background:transparent; border:2px solid var(--cream-alt); color:var(--text-muted);">Search Again</button>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 Blue Bengal Carshalton. All Rights Reserved.</p>
+        <p>Follow us on <a href="https://www.facebook.com/bluebengal" target="_blank" rel="noopener">Facebook</a></p>
+        <p><a href="privacy-policy.html">Privacy Policy</a></p>
+    </footer>
+
+    <script>
+        document.getElementById("navToggle").addEventListener("click", () => {
+            document.getElementById("navLinks").classList.toggle("open");
+        });
+    </script>
+    <script src="calendar-link.js"></script>
+    <script src="manage-booking.js"></script>
+</body>
+</html>
