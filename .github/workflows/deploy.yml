@@ -23,7 +23,16 @@ jobs:
       - name: Sync files to S3
         run: |
           echo "Starting S3 sync..."
-          bash -c "aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --delete --exclude '.git/*' --exclude '.github/*' --exclude '*.md' --exclude '.gitignore' --exclude '.gitmodules' --exclude 'README.md' --exclude 'backend/*' --exclude '.vscode/*' --exclude '.claude/*'"
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} --delete \
+            --exclude '.git/*' \
+            --exclude '.github/*' \
+            --exclude '*.md' \
+            --exclude '.gitignore' \
+            --exclude '.gitmodules' \
+            --exclude 'README.md' \
+            --exclude 'backend/*' \
+            --exclude '.vscode/*' \
+            --exclude '.claude/*'
           echo "S3 sync completed."
 
       - name: Invalidate CloudFront Cache
