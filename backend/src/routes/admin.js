@@ -390,4 +390,44 @@ router.get("/email-log", async (req, res, next) => {
     }
 });
 
+// GET /api/admin/analytics - last 30 days of pageviews + bookings created, for
+// the admin Analytics tab. Anonymous, aggregate counts only (see page_views).
+router.get("/analytics", async (req, res, next) => {
+    try {
+        const [byDay, byPath, bookingsByDay] = await Promise.all([
+            pool.query(
+                `SELECT (created_at AT TIME ZONE 'Europe/London')::date AS day, COUNT(*)::int AS views
+                 FROM page_views
+                 WHERE created_at >= now() - interval '30 days'
+                 GROUP BY day ORDER BY day`
+            ),
+            pool.query(
+                `SELECT path, COUNT(*)::int AS views
+                 FROM page_views
+                 WHERE created_at >= now() - interval '30 days'
+                 GROUP BY path ORDER BY views DESC LIMIT 20`
+            ),
+            pool.query(
+                `SELECT (created_at AT TIME ZONE 'Europe/London')::date AS day, COUNT(*)::int AS bookings
+                 FROM bookings
+                 WHERE created_at >= now() - interval '30 days'
+                 GROUP BY day ORDER BY day`
+            ),
+        ]);
+
+        res.json({
+            success: true,
+            analytics: {
+                viewsByDay: byDay.rows,
+                viewsByPath: byPath.rows,
+                bookingsByDay: bookingsByDay.rows,
+                totalViews: byDay.rows.reduce((sum, r) => sum + r.views, 0),
+                totalBookings: bookingsByDay.rows.reduce((sum, r) => sum + r.bookings, 0),
+            },
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;

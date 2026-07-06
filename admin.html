@@ -48,6 +48,7 @@
                 <button data-tab="bookings">Bookings</button>
                 <button data-tab="customers">Customers</button>
                 <button data-tab="vouchers">Vouchers</button>
+                <button data-tab="analytics">Analytics</button>
                 <button data-tab="settings">Settings</button>
                 <button data-tab="notifications">
                     Notifications
@@ -265,6 +266,44 @@
                     <div id="voucherRecipientsList" style="max-height:260px; overflow-y:auto; margin-bottom:16px;"></div>
                     <button class="btn btn-gold" id="sendVoucherBtn">Send to Selected Customers</button>
                     <span class="save-status" id="voucherSendStatus">Sent ✓</span>
+                </div>
+            </section>
+
+            <!-- Analytics tab -->
+            <section class="admin-tab" id="tab-analytics" hidden>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotalViews">0</div>
+                        <div class="stat-label">Page Views (30 days)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotalBookingsPeriod">0</div>
+                        <div class="stat-label">Bookings Made (30 days)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statConversionRate">0%</div>
+                        <div class="stat-label">Views → Bookings</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Views by Page (last 30 days)</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Page</th><th>Views</th></tr></thead>
+                            <tbody id="analyticsByPathBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Daily Views &amp; Bookings (last 30 days)</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Date</th><th>Views</th><th>Bookings</th></tr></thead>
+                            <tbody id="analyticsByDayBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 

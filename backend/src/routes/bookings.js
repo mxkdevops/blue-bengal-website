@@ -16,6 +16,17 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const NOT_FOUND_MESSAGE = "We couldn't find a booking with that code and email. Please check and try again.";
 
+// POST /track-pageview { path } - anonymous pageview counter for the admin
+// Analytics tab. No visitor identifier is stored, just the path and time,
+// so this never fails the request if it errors and never blocks rendering.
+router.post("/track-pageview", async (req, res) => {
+    const path = typeof req.body.path === "string" ? req.body.path.slice(0, 255) : null;
+    if (path) {
+        pool.query("INSERT INTO page_views (path) VALUES ($1)", [path]).catch(() => {});
+    }
+    res.status(204).end();
+});
+
 async function findBookingByCodeAndEmail(client, code, email) {
     const result = await client.query(
         `SELECT b.id, b.booking_code, b.booking_date, b.booking_time, b.guests, b.status,

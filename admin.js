@@ -13,6 +13,7 @@ const state = {
     blockedSlots: [],
     emailLog: [],
     vouchers: [],
+    analytics: null,
     selectedCustomerIds: new Set(),
     closedWeekdays: [],
     activeQuick: "upcoming",
@@ -41,6 +42,12 @@ const els = {
 
     customerSearch: document.getElementById("customerSearch"),
     customersTableBody: document.getElementById("customersTableBody"),
+
+    statTotalViews: document.getElementById("statTotalViews"),
+    statTotalBookingsPeriod: document.getElementById("statTotalBookingsPeriod"),
+    statConversionRate: document.getElementById("statConversionRate"),
+    analyticsByPathBody: document.getElementById("analyticsByPathBody"),
+    analyticsByDayBody: document.getElementById("analyticsByDayBody"),
 
     quickFilters: document.getElementById("quickFilters"),
     statusFilter: document.getElementById("statusFilter"),
@@ -245,7 +252,7 @@ adminNavToggle.addEventListener("click", () => {
 
 // --- Data loading ---
 async function loadEverything() {
-    await Promise.all([loadBookings(), loadSettings(), loadBlockedSlots(), loadEmailLog(), loadVouchers()]);
+    await Promise.all([loadBookings(), loadSettings(), loadBlockedSlots(), loadEmailLog(), loadVouchers(), loadAnalytics()]);
     renderOverview();
     renderBookings();
     renderCustomersTable();
@@ -256,6 +263,44 @@ async function loadEverything() {
     renderVouchersTable();
     renderVoucherSendOptions();
     renderVoucherRecipients();
+    renderAnalytics();
+}
+
+async function loadAnalytics() {
+    const data = await apiFetch("/api/admin/analytics");
+    state.analytics = data.analytics;
+}
+
+function renderAnalytics() {
+    const a = state.analytics;
+    if (!a) return;
+
+    els.statTotalViews.textContent = a.totalViews;
+    els.statTotalBookingsPeriod.textContent = a.totalBookings;
+    els.statConversionRate.textContent = a.totalViews > 0
+        ? `${Math.round((a.totalBookings / a.totalViews) * 100)}%`
+        : "0%";
+
+    els.analyticsByPathBody.innerHTML = a.viewsByPath.length
+        ? a.viewsByPath
+              .map((r) => `<tr><td data-label="Page">${escapeHtml(r.path)}</td><td data-label="Views">${r.views}</td></tr>`)
+              .join("")
+        : `<tr><td colspan="2" class="panel-empty">No page views recorded yet.</td></tr>`;
+
+    const bookingsByDayMap = new Map(a.bookingsByDay.map((r) => [r.day, r.bookings]));
+    els.analyticsByDayBody.innerHTML = a.viewsByDay.length
+        ? [...a.viewsByDay]
+              .sort((x, y) => (x.day < y.day ? 1 : -1))
+              .map(
+                  (r) => `
+            <tr>
+                <td data-label="Date">${formatDate(r.day)}</td>
+                <td data-label="Views">${r.views}</td>
+                <td data-label="Bookings">${bookingsByDayMap.get(r.day) || 0}</td>
+            </tr>`
+              )
+              .join("")
+        : `<tr><td colspan="3" class="panel-empty">No page views recorded yet.</td></tr>`;
 }
 
 async function loadVouchers() {

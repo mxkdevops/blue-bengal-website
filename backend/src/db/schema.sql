@@ -143,3 +143,14 @@ ALTER TABLE email_log ADD COLUMN IF NOT EXISTS voucher_id INTEGER REFERENCES vou
 ALTER TABLE email_log DROP CONSTRAINT IF EXISTS email_log_email_type_check;
 ALTER TABLE email_log DROP CONSTRAINT IF EXISTS email_log_type_check;
 ALTER TABLE email_log ADD CONSTRAINT email_log_type_check CHECK (email_type IN ('reminder', 'feedback', 'voucher', 'confirmation', 'cancellation', 'admin_notification', 'booking_update'));
+
+-- Bare-bones, cookie-free pageview counter for the admin Analytics tab.
+-- Deliberately anonymous: just a page path and a timestamp, no visitor
+-- identifier, IP, or user agent, so no cookie-consent notice is needed.
+CREATE TABLE IF NOT EXISTS page_views (
+    id SERIAL PRIMARY KEY,
+    path VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_views_created ON page_views(created_at);
