@@ -1,14 +1,14 @@
 const pool = require("../db/pool");
 const { sendEmail } = require("./emailSender");
 const { formatDate, formatTime } = require("./formatters");
-const { emailLayout, detailsTable, button, frontendUrl } = require("./emailTemplate");
+const { emailLayout, detailsTable, button, frontendUrl, escapeHtml } = require("./emailTemplate");
 const { buildGoogleCalendarUrl } = require("./calendarLink");
 
 // Sent once, whenever a booking becomes "confirmed" — either immediately via
 // auto-accept, or later when staff manually confirm a pending booking.
 async function sendBookingConfirmationEmail(bookingId) {
     const bookingResult = await pool.query(
-        `SELECT b.booking_code, b.booking_date, b.booking_time, b.guests, c.name, c.email
+        `SELECT b.booking_code, b.booking_date, b.booking_time, b.guests, b.notes, c.name, c.email
          FROM bookings b
          JOIN customers c ON c.id = b.customer_id
          WHERE b.id = $1`,
@@ -33,7 +33,8 @@ async function sendBookingConfirmationEmail(bookingId) {
         `Booking Code: ${b.booking_code}\n` +
         `Date: ${formatDate(b.booking_date)}\n` +
         `Time: ${formatTime(b.booking_time.slice(0, 5))}\n` +
-        `Guests: ${b.guests}\n\n` +
+        `Guests: ${b.guests}\n` +
+        `${b.notes ? `Your request: ${b.notes}\n` : ""}\n` +
         `Add to Google Calendar: ${calendarUrl}\n` +
         `Need to change or cancel? ${manageUrl}\n\n` +
         `We look forward to welcoming you!`;
@@ -49,6 +50,7 @@ async function sendBookingConfirmationEmail(bookingId) {
                 ["Time", formatTime(b.booking_time.slice(0, 5))],
                 ["Guests", b.guests],
             ])}
+            ${b.notes ? `<p style="margin:16px 0 0; line-height:1.6;"><strong>Your request:</strong> ${escapeHtml(b.notes)}<br><span style="font-size:13px; color:#6b5a4e;">We've noted this and will do our best to accommodate it. For anything you'd like to confirm in advance, please call us on 020 8647 0286.</span></p>` : ""}
             ${button("📅 Add to Google Calendar", calendarUrl, "secondary")}
             ${button("Manage Your Booking", manageUrl)}
             <p style="margin:20px 0 0; font-size:13px; color:#6b5a4e; text-align:center;">Need to change the date, time or party size, or cancel? Use the button above.</p>

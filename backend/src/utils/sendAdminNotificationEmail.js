@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const pool = require("../db/pool");
 const { sendEmail } = require("./emailSender");
 const { formatDate, formatTime } = require("./formatters");
-const { emailLayout, detailsTable, button, apiUrl } = require("./emailTemplate");
+const { emailLayout, detailsTable, button, apiUrl, escapeHtml } = require("./emailTemplate");
 
 function generateActionToken() {
     return crypto.randomBytes(24).toString("hex");
@@ -51,7 +51,7 @@ async function sendAdminNotificationEmail(bookingId) {
                 ["Date", formatDate(b.booking_date)],
                 ["Time", formatTime(b.booking_time.slice(0, 5))],
                 ["Guests", b.guests],
-                ...(b.notes ? [["Notes", b.notes]] : []),
+                ...(b.notes ? [["Notes", escapeHtml(b.notes)]] : []),
                 ["Status", statusLabel],
             ])}
             ${button("Review This Booking", reviewUrl)}

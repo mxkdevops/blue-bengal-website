@@ -65,6 +65,17 @@ function emailLayout({ heading, bodyHtml }) {
 </html>`;
 }
 
+// Booking notes are free-text guest input; escape before dropping into HTML
+// email bodies so a note can't inject markup/links into the message.
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function detailsTable(rows) {
     return `<table cellpadding="0" cellspacing="0" style="width:100%; background:${BRAND.creamAlt}; border-radius:8px; margin:20px 0; font-family: Arial, sans-serif;">
         ${rows
@@ -88,4 +99,4 @@ function button(label, href, variant = "primary") {
     </div>`;
 }
 
-module.exports = { BRAND, CONTACT, frontendUrl, apiUrl, emailLayout, detailsTable, button };
+module.exports = { BRAND, CONTACT, frontendUrl, apiUrl, emailLayout, detailsTable, button, escapeHtml };
