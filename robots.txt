@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /manage-booking.html
+Disallow: /unsubscribe.html
+Disallow: /thank-you.html
+
+Sitemap: https://bluebengal-carshalton.co.uk/sitemap.xml
