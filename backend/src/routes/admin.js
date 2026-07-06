@@ -32,7 +32,7 @@ router.get("/bookings", async (req, res, next) => {
         const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
         const result = await pool.query(
             `SELECT b.id, b.booking_code, b.booking_date, b.booking_time, b.guests, b.status,
-                    b.notes, b.created_at,
+                    b.notes, b.cancellation_reason, b.created_at,
                     c.id AS customer_id, c.name, c.email, c.phone, c.marketing_consent,
                     (SELECT COUNT(*) FROM bookings b2 WHERE b2.customer_id = c.id)::int AS customer_booking_count
              FROM bookings b
@@ -53,7 +53,7 @@ router.get("/bookings/:id", async (req, res, next) => {
     try {
         const result = await pool.query(
             `SELECT b.id, b.booking_code, b.booking_date, b.booking_time, b.guests, b.status,
-                    b.notes, b.created_at,
+                    b.notes, b.cancellation_reason, b.created_at,
                     c.id AS customer_id, c.name, c.email, c.phone, c.marketing_consent,
                     (SELECT COUNT(*) FROM bookings b2 WHERE b2.customer_id = c.id)::int AS customer_booking_count
              FROM bookings b

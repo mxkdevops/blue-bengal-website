@@ -336,10 +336,12 @@ router.post("/booking/:code/cancel", async (req, res, next) => {
             return res.json({ success: true, booking: { bookingCode: booking.booking_code, status: "cancelled" } });
         }
 
+        const reason = typeof req.body.reason === "string" ? req.body.reason.trim().slice(0, 300) : null;
+
         const result = await pool.query(
-            `UPDATE bookings SET status = 'cancelled', updated_at = now() WHERE id = $1
+            `UPDATE bookings SET status = 'cancelled', cancellation_reason = $2, updated_at = now() WHERE id = $1
              RETURNING id, booking_code, booking_date, booking_time, guests, status`,
-            [booking.id]
+            [booking.id, reason || null]
         );
         const updated = result.rows[0];
         res.json({

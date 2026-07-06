@@ -81,6 +81,16 @@
             </form>
 
             <button type="button" class="btn" id="cancelBookingBtn" style="width:100%; margin-top:12px; background:transparent; border:2px solid #a3242f; color:#a3242f;">Cancel This Booking</button>
+
+            <div id="cancelReasonPanel" hidden style="margin-top:12px; padding:16px; border:1.5px solid #a3242f4d; border-radius:8px; background:#fdf3f3;">
+                <label for="cancelReason" style="display:block; margin-bottom:8px; font-weight:600; color:var(--text);">Let us know why you're cancelling (optional)</label>
+                <textarea id="cancelReason" rows="3" maxlength="300" placeholder="e.g. double booked, feeling unwell, change of plans..." style="width:100%; padding:10px 12px; border:1.5px solid var(--cream-alt); border-radius:8px; font-family:inherit; font-size:0.95rem; resize:vertical;"></textarea>
+                <div style="display:flex; gap:10px; margin-top:12px;">
+                    <button type="button" id="confirmCancelBtn" class="btn" style="flex:1; background:#a3242f; color:#fff; border:2px solid #a3242f;">Confirm Cancellation</button>
+                    <button type="button" id="backFromCancelBtn" class="btn" style="flex:1; background:transparent; border:2px solid var(--cream-alt); color:var(--text-muted);">Never Mind</button>
+                </div>
+            </div>
+
             <button type="button" class="btn" id="searchAgainBtn" style="width:100%; margin-top:12px; background:transparent; border:2px solid var(--cream-alt); color:var(--text-muted);">Search Again</button>
         </div>
     </div>

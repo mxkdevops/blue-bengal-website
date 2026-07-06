@@ -22,6 +22,10 @@ const els = {
     editError: document.getElementById("editError"),
     saveChangesBtn: document.getElementById("saveChangesBtn"),
     cancelBookingBtn: document.getElementById("cancelBookingBtn"),
+    cancelReasonPanel: document.getElementById("cancelReasonPanel"),
+    cancelReason: document.getElementById("cancelReason"),
+    confirmCancelBtn: document.getElementById("confirmCancelBtn"),
+    backFromCancelBtn: document.getElementById("backFromCancelBtn"),
     searchAgainBtn: document.getElementById("searchAgainBtn"),
     addToCalendarLink: document.getElementById("addToCalendarLink"),
 };
@@ -171,15 +175,27 @@ els.editForm.addEventListener("submit", async (e) => {
     }
 });
 
-els.cancelBookingBtn.addEventListener("click", async () => {
-    if (!confirm("Are you sure you want to cancel this booking?")) return;
+els.cancelBookingBtn.addEventListener("click", () => {
+    els.cancelBookingBtn.hidden = true;
+    els.cancelReasonPanel.hidden = false;
+    els.cancelReason.focus();
+});
+
+els.backFromCancelBtn.addEventListener("click", () => {
+    els.cancelReasonPanel.hidden = true;
+    els.cancelBookingBtn.hidden = false;
+    els.cancelReason.value = "";
+});
+
+els.confirmCancelBtn.addEventListener("click", async () => {
     const code = els.lookupCode.value.trim();
+    const reason = els.cancelReason.value.trim();
 
     try {
         const res = await fetch(`${API_BASE_URL}/booking/${encodeURIComponent(code)}/cancel`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: currentEmail }),
+            body: JSON.stringify({ email: currentEmail, reason }),
         });
         const data = await res.json();
         if (!data.success) {

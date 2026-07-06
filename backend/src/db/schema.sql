@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS bookings (
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS reminder_sent_at TIMESTAMPTZ;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS feedback_sent_at TIMESTAMPTZ;
 
+-- Optional free-text reason a guest gives when cancelling their own booking
+-- (e.g. "double booked", "feeling unwell") so staff can see why.
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancellation_reason TEXT;
+
 -- Secret, per-booking token that lets a one-click "Confirm/Reject" link in the
 -- admin notification email act on this specific booking without needing to
 -- log into the admin panel. Never shown to the guest.

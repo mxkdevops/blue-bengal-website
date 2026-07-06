@@ -721,6 +721,7 @@ function openBookingModal(id) {
         <div class="modal-row"><span>Marketing Emails</span><strong>${b.marketing_consent ? "Opted in" : "Not opted in"}</strong></div>
         <div class="modal-row"><span>Booked On</span><strong>${new Date(b.created_at).toLocaleString("en-GB")}</strong></div>
         ${b.notes ? `<div class="modal-row" style="display:block;"><span style="display:block; margin-bottom:6px;">Notes / Special Requests</span><strong style="font-weight:400;">${escapeHtml(b.notes)}</strong></div>` : ""}
+        ${b.cancellation_reason ? `<div class="modal-row" style="display:block;"><span style="display:block; margin-bottom:6px;">Reason for Cancellation</span><strong style="font-weight:400;">${escapeHtml(b.cancellation_reason)}</strong></div>` : ""}
         <div class="modal-close">
             <button class="icon-btn" id="editBookingBtn">Edit Booking</button>
             <button id="closeModalBtn">Close</button>
