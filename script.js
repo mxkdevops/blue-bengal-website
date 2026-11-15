@@ -156,6 +156,8 @@ document.getElementById("bookingForm").addEventListener("submit", async function
     let guests = document.getElementById("guests").value;
     let notes = document.getElementById("notes").value.trim();
     let marketingConsent = document.getElementById("marketingConsent").checked;
+    let websiteField = document.getElementById("website");
+    let website = websiteField ? websiteField.value : "";
 
     if (!name || !email || !phone || !date || !time || !guests) {
         alert("Please fill in all fields.");
@@ -166,7 +168,7 @@ document.getElementById("bookingForm").addEventListener("submit", async function
         let response = await fetch(`${API_BASE_URL}/create-booking`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, phone, date, time, guests, notes, marketingConsent })
+            body: JSON.stringify({ name, email, phone, date, time, guests, notes, marketingConsent, website })
         });
 
         let result = await response.json();

@@ -108,6 +108,14 @@ router.get("/availability", async (req, res, next) => {
 
 // POST /create-booking - guest-facing booking creation
 router.post("/create-booking", async (req, res, next) => {
+    // Honeypot: the booking form has a hidden "website" field real guests never
+    // see or fill. Bots that fill every field get a fake success and nothing
+    // is saved or emailed, so they don't learn to work around it.
+    if (typeof req.body.website === "string" && req.body.website.trim() !== "") {
+        console.warn(`Honeypot triggered on /create-booking from ${req.ip}`);
+        return res.json({ success: true, booking: { bookingId: "", confirmationMessage: "" } });
+    }
+
     const { valid, errors, data } = validateBooking(req.body);
     if (!valid) {
         return res.status(400).json({ success: false, message: errors.join(" ") });

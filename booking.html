@@ -76,6 +76,12 @@
                     <select id="guests" required></select>
                 </div>
 
+                <!-- Spam trap: hidden from people, bots fill it in. Leave empty. -->
+                <div aria-hidden="true" style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
+                    <label for="website">Leave this field empty</label>
+                    <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                </div>
+
                 <div class="field">
                     <label for="notes">Special Requests / Notes (optional)</label>
                     <textarea id="notes" rows="3" maxlength="500" placeholder="e.g. window table, allergies, celebrating an occasion..." style="width:100%; padding:12px 14px; border:1.5px solid var(--cream-alt); border-radius:8px; font-family:inherit; font-size:1rem; background:var(--cream); color:var(--text); resize:vertical;"></textarea>
