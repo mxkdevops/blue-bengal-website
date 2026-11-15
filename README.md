@@ -79,6 +79,9 @@ The instance is `blue-bengal-backend` in the London region (eu-west-2). Its IP a
 | Secrets | `/home/ubuntu/blue-bengal-website/backend/.env`, **never committed**: `PORT`, `DATABASE_URL`, `ADMIN_API_KEY`, `CORS_ORIGIN`, `AUTO_ACCEPT_DEFAULT`, `RESEND_API_KEY`, `EMAIL_FROM`, `API_PUBLIC_URL` |
 | Backups | Cron at 03:00 daily runs `~/backup-db.sh`: `pg_dump` → gzip → upload to an S3 backup bucket. Log: `~/backup.log` |
 | Firewall | Lightsail firewall: ports 22, 80, 443 only |
+| Node.js | v22 LTS from the NodeSource apt repo (`/etc/apt/sources.list.d/nodesource.sources`) |
+| Monitoring | Route 53 health check `blue-bengal-api` hits `/health` every 30s from 3 regions. CloudWatch alarm `blue-bengal-api-down` (us-east-1) emails via SNS topic `blue-bengal-alerts` when it fails for ~2 min, and again when it recovers |
+| Spam protection | Per-IP rate limits ([rateLimit.js](backend/src/middleware/rateLimit.js), wired in [app.js](backend/src/app.js)) and a hidden honeypot field on the booking form |
 
 ## Making changes
 
