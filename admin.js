@@ -16,8 +16,12 @@ const state = {
     analytics: null,
     selectedCustomerIds: new Set(),
     closedWeekdays: [],
-    activeQuick: "upcoming",
-    bookingsViewMode: localStorage.getItem("bb_admin_view_mode") || "cards",
+    activeQuick: "today",
+    // Phones default to the compact list; desktops to cards. An explicit
+    // choice via the Cards/List toggle is remembered per device.
+    bookingsViewMode:
+        localStorage.getItem("bb_admin_view_mode") ||
+        (window.matchMedia("(max-width: 860px)").matches ? "list" : "cards"),
 };
 
 const els = {
@@ -1241,6 +1245,10 @@ function escapeHtml(str) {
 document.querySelectorAll("#viewToggle .chip").forEach((chip) => {
     chip.classList.toggle("active", chip.dataset.view === state.bookingsViewMode);
 });
+
+// Open on the Bookings tab with "Today" selected — what staff need first.
+document.querySelector('.admin-nav button[data-tab="bookings"]').click();
+document.querySelector('#quickFilters .chip[data-quick="today"]').click();
 
 if (state.adminKey) {
     showApp();

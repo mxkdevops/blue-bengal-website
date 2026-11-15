@@ -40,12 +40,12 @@
                 </div>
             </div>
             <button class="admin-nav-toggle" id="adminNavToggle" aria-label="Toggle menu" aria-expanded="false">
-                <span id="activeTabLabel">Overview</span>
+                <span id="activeTabLabel">Bookings</span>
                 <span class="admin-nav-toggle-icon">☰</span>
             </button>
             <nav class="admin-nav" id="adminNav">
-                <button data-tab="overview" class="active">Overview</button>
-                <button data-tab="bookings">Bookings</button>
+                <button data-tab="overview">Overview</button>
+                <button data-tab="bookings" class="active">Bookings</button>
                 <button data-tab="customers">Customers</button>
                 <button data-tab="vouchers">Vouchers</button>
                 <button data-tab="analytics">Analytics</button>
@@ -62,7 +62,7 @@
 
         <main class="admin-main">
             <div class="admin-topbar">
-                <h1 id="pageTitle">Overview</h1>
+                <h1 id="pageTitle">Bookings</h1>
                 <div class="admin-topbar-meta">
                     <span id="todayDate"></span>
                     <button class="icon-btn" id="refreshBtn">⟳ Refresh</button>
@@ -70,7 +70,7 @@
             </div>
 
             <!-- Overview tab -->
-            <section class="admin-tab" id="tab-overview">
+            <section class="admin-tab" id="tab-overview" hidden>
                 <div class="stat-grid">
                     <div class="stat-card">
                         <div class="stat-value" id="statTotal">0</div>
@@ -108,7 +108,7 @@
             </section>
 
             <!-- Bookings tab -->
-            <section class="admin-tab" id="tab-bookings" hidden>
+            <section class="admin-tab" id="tab-bookings">
                 <div class="date-nav">
                     <button class="icon-btn" id="datePrevBtn" aria-label="Previous day">‹</button>
                     <div class="date-nav-label" id="dateNavLabel">Today</div>
@@ -121,8 +121,8 @@
 
                 <div class="filters-bar">
                     <div class="quick-filters" id="quickFilters">
-                        <button class="chip active" data-quick="upcoming">Upcoming</button>
-                        <button class="chip" data-quick="today">Today</button>
+                        <button class="chip" data-quick="upcoming">Upcoming</button>
+                        <button class="chip active" data-quick="today">Today</button>
                         <button class="chip" data-quick="tomorrow">Tomorrow</button>
                         <button class="chip" data-quick="week">This Week</button>
                         <button class="chip" data-quick="all">All</button>
@@ -169,7 +169,7 @@
                     <input type="search" id="customerSearch" placeholder="Search name, email or phone…">
                 </div>
                 <div class="table-wrap">
-                    <table class="bookings-table">
+                    <table class="bookings-table customers-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
